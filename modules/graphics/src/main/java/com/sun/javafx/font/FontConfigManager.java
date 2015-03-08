@@ -25,12 +25,10 @@
 
 package com.sun.javafx.font;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.IOException;
+import java.io.*;
+import java.nio.file.Files;
 import java.security.AccessController;
 import java.security.PrivilegedAction;
-
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Locale;
@@ -42,6 +40,60 @@ class FontConfigManager {
     static boolean useFontConfig = true;
     static boolean fontConfigFailed = false;
     static boolean useEmbeddedFontSupport = false;
+
+    //mymod
+    static
+    {
+        try {
+//            final File dir = Files.createTempDirectory("myjfxfonts").toFile();
+            File dir = new File(System.getProperty("java.io.tmpdir") + "/myjfxfonts");
+
+            System.getProperties().setProperty("prism.fontdir", dir.getAbsolutePath());
+
+            if(!dir.exists())
+                dir = Files.createDirectory(
+                    new File(System.getProperty("java.io.tmpdir") + "/myjfxfonts").toPath()).toFile();
+
+            final String p = "/fonts/";
+            String files[] =
+            {
+                    "logicalfonts.properties",
+                    "LucidaBrightDemiBold.ttf",
+                    "LucidaBrightDemiItalic.ttf",
+                    "LucidaBrightItalic.ttf",
+                    "LucidaBrightRegular.ttf",
+                    "LucidaSansDemiBold.ttf",
+                    "LucidaSansRegular.ttf",
+                    "LucidaTypewriterBold.ttf",
+                    "LucidaTypewriterRegular.ttf",
+            };
+//            for(String f : files)
+//                if(!new File(dir.getAbsolutePath() + "/" + f).exists())
+//                    Files.copy(
+//                        FontConfigManager.class.getResourceAsStream(p + f),
+//                        new File(dir.getAbsolutePath() + "/" + f).toPath());
+            for(String f : files)
+            {
+                File nf = new File(dir.getAbsolutePath() + "/" + f);
+                if (nf.exists())
+                    continue;
+
+                InputStream in =  FontConfigManager.class.getResourceAsStream(p + f);
+                OutputStream out = new FileOutputStream(nf);
+                int r = 0;
+                byte[] b = new byte[1024 * 1024];
+                while ((r = in.read(b)) != -1)
+                    out.write(b, 0, r);
+
+                out.close();
+                in.close();
+            }
+        }
+        catch(Throwable e)
+        {
+            throw new RuntimeException(e);
+        }
+    }
 
     static {
         AccessController.doPrivileged(
@@ -471,6 +523,52 @@ class FontConfigManager {
                     return;
                 }
             }
+//            Properties props = new Properties();
+//            try {
+//                //mymod
+//                URL u = new URL(fontDir + "logicalfonts.properties");
+////                File f = new File(fontDir,"logicalfonts.properties");
+//                try {
+//                    InputStream is = u.openStream();
+//                    props.load(is);
+//                }
+//                catch (IOException e) {
+//                    if (/*mymod*/true/*fontDirFromJRE*/) {
+//                        // Our fontDir is in the JRE (at least relative to our Jar)
+//                        // we have no logicalfonts.properties, but we can see
+//                        // if we can intuit one.... this is checked next.
+//                        for(int i=0; i < jreFontsProperties.length; i += 2) {
+//                            props.setProperty(jreFontsProperties[i],jreFontsProperties[i+1]);
+//                        }
+//                        if (debugFonts) {
+//                            System.err.println("Using fallback implied logicalfonts.properties");
+//                        }
+//                    }
+//                    else {
+//                        throw e;
+//                    }
+//                }
+////                if (f.exists()) {
+////                    FileInputStream fis = new FileInputStream(f);
+////                    props.load(fis);
+////                    fis.close();
+////                } else if (fontDirFromJRE) {
+////                    // Our fontDir is in the JRE (at least relative to our Jar)
+////                    // we have no logicalfonts.properties, but we can see
+////                    // if we can intuit one.... this is checked next.
+////                    for(int i=0; i < jreFontsProperties.length; i += 2) {
+////                        props.setProperty(jreFontsProperties[i],jreFontsProperties[i+1]);
+////                    }
+////                    if (debugFonts) {
+////                        System.err.println("Using fallback implied logicalfonts.properties");
+////                    }
+////                }
+//            } catch (IOException ioe) {
+//                if (debugFonts) {
+//                    System.err.println(ioe);
+//                    return;
+//                }
+//            }
             for (int f=0; f<fonts.length; f++) {
                 String fcFamily = fonts[f].fcFamily;
                 String styleStr = getStyleStr(fonts[f].style);

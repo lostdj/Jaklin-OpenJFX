@@ -25,6 +25,7 @@
 
 package com.sun.javafx.tk.quantum;
 
+import com.sun.javafx.runtime.MyProps;
 import javafx.application.ConditionalFeature;
 import javafx.geometry.Dimension2D;
 import javafx.scene.image.Image;
@@ -132,7 +133,17 @@ import com.sun.javafx.logging.PulseLogger;
 import static com.sun.javafx.logging.PulseLogger.PULSE_LOGGING_ENABLED;
 import com.sun.prism.impl.ManagedResource;
 
-public final class QuantumToolkit extends Toolkit {
+public final class QuantumToolkit extends Toolkit
+{
+    //mymod
+    static
+    {
+        if(MyProps.dll)
+            if(MyProps.dll_path.isEmpty())
+                System.loadLibrary("myfx");
+            else
+                System.load(MyProps.dll_path);
+    }
 
     public static final boolean verbose =
             AccessController.doPrivileged((PrivilegedAction<Boolean>) () -> Boolean.getBoolean("quantum.verbose"));
@@ -171,16 +182,18 @@ public final class QuantumToolkit extends Toolkit {
                 boolean isSWT = "swt".equals(System.getProperty("glass.platform"));
                 String result = PlatformUtil.isMac() && isSWT ? "true" : "false";
                 return "true".equals(System.getProperty("javafx.draw.in.paint", result));});
-    
-    private static boolean singleThreaded =
+
+    //mymod
+    public final static boolean singleThreaded =
             AccessController.doPrivileged((PrivilegedAction<Boolean>) () -> {
                 Boolean result = Boolean.getBoolean("quantum.singlethreaded");
-                if (/*verbose &&*/ result) {
-                    System.out.println("Warning: Single GUI Threadiong is enabled, FPS should be slower");
-                }
+                //mymod
+//                if (/*verbose &&*/ result) {
+//                    System.out.println("Warning: Single GUI Threadiong is enabled, FPS should be slower");
+//                }
                 return result;
             });
-    
+
     private static boolean noRenderJobs =
             AccessController.doPrivileged((PrivilegedAction<Boolean>) () -> {
                 Boolean result = Boolean.getBoolean("quantum.norenderjobs");
@@ -202,11 +215,13 @@ public final class QuantumToolkit extends Toolkit {
     boolean                         nativeSystemVsync = false;
     private float                   _maxPixelScale;
     private Runnable                pulseRunnable, userRunnable, timerRunnable;
-    private Timer                   pulseTimer = null;
+    //mymod
+    public Timer                   pulseTimer = null;
     private Thread                  shutdownHook = null;
     private PaintCollector          collector;
     private QuantumRenderer         renderer;
-    private GraphicsPipeline        pipeline;
+    //mymod
+    public GraphicsPipeline        pipeline;
 
     private ClassLoader             ccl;
 
@@ -220,20 +235,27 @@ public final class QuantumToolkit extends Toolkit {
          */
         renderer = QuantumRenderer.getInstance();
         collector = PaintCollector.createInstance(this);
-        pipeline = GraphicsPipeline.getPipeline();
+        //mymod
+        if(!QuantumToolkit.singleThreaded)
+            pipeline = GraphicsPipeline.getPipeline();
 
         /* shutdown the pipeline on System.exit, ^c
          * needed with X11 and Windows, see RT-32501
          */
-        shutdownHook = new Thread("Glass/Prism Shutdown Hook") {
-            @Override public void run() {
-                dispose();
-            }
-        };
-        AccessController.doPrivileged((PrivilegedAction<Void>) () -> {
-            Runtime.getRuntime().addShutdownHook(shutdownHook);
-            return null;
-        });
+        //mymod
+        if(MyProps.mt)
+        {
+            shutdownHook = new Thread("Glass/Prism Shutdown Hook") {
+                @Override
+                public void run() {
+                    dispose();
+                }
+            };
+            AccessController.doPrivileged((PrivilegedAction<Void>) () -> {
+                Runtime.getRuntime().addShutdownHook(shutdownHook);
+                return null;
+            });
+        }
         return true;
     }
 
@@ -280,7 +302,7 @@ public final class QuantumToolkit extends Toolkit {
     }
 
     boolean shouldWaitForRenderingToComplete() {
-        return !multithreaded; 
+        return !multithreaded;
     }
 
     /**
@@ -364,10 +386,10 @@ public final class QuantumToolkit extends Toolkit {
         } catch (Throwable th) {
             th.printStackTrace(System.err);
         } finally {
-            if (PrismSettings.verbose) {
-                System.err.println(" vsync: " + PrismSettings.isVsyncEnabled +
-                                   " vpipe: " + pipeline.isVsyncSupported());
-            }
+//            if (PrismSettings.verbose) {
+//                System.err.println(" vsync: " + PrismSettings.isVsyncEnabled +
+//                                   " vpipe: " + pipeline.isVsyncSupported());
+//            }
             PerformanceTracker.logEvent("Toolkit.startup - finished");
         }
     }
@@ -580,7 +602,7 @@ public final class QuantumToolkit extends Toolkit {
         if (!isNestedLoopRunning()) {
             notifyLastNestedLoopExited();
         }
-        
+
         return ret;
     }
 
@@ -767,7 +789,9 @@ public final class QuantumToolkit extends Toolkit {
 
             try {
                 AccessController.doPrivileged((PrivilegedAction<Void>) () -> {
-                    Runtime.getRuntime().removeShutdownHook(shutdownHook);
+                    //mymod
+                    if(shutdownHook != null)
+                        Runtime.getRuntime().removeShutdownHook(shutdownHook);
                     return null;
                 });
             } catch (IllegalStateException ignore) {

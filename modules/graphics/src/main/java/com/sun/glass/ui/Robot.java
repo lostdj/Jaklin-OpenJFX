@@ -24,6 +24,7 @@
  */
 package com.sun.glass.ui;
 
+import java.lang.annotation.Native;
 import java.nio.IntBuffer;
 
 import java.security.AccessController;
@@ -34,8 +35,11 @@ public abstract class Robot {
 
     private final static Permission allPermission = new AllPermission();
 
+    @Native
     final static public int MOUSE_LEFT_BTN   = 1;
+    @Native
     final static public int MOUSE_RIGHT_BTN  = 2;
+    @Native
     final static public int MOUSE_MIDDLE_BTN = 4;
 
     protected abstract void _create();

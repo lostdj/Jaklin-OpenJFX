@@ -35,24 +35,36 @@ import com.sun.javafx.iio.common.PushbroomScaler;
 import com.sun.javafx.iio.common.ScalerFactory;
 import java.io.IOException;
 import java.io.InputStream;
+import java.lang.annotation.Native;
 import java.nio.ByteBuffer;
 import java.security.AccessController;
 import java.security.PrivilegedAction;
 
 public class JPEGImageLoader extends ImageLoaderImpl {
 
+    //mymod
     // IJG Color codes.
+    @Native
     public static final int JCS_UNKNOWN = 0;       // error/unspecified
+    @Native
     public static final int JCS_GRAYSCALE = 1;     // monochrome
+    @Native
     public static final int JCS_RGB = 2;           // red/green/blue
+    @Native
     public static final int JCS_YCbCr = 3;         // Y/Cb/Cr (also known as YUV)
+    @Native
     public static final int JCS_CMYK = 4;          // C/M/Y/K
+    @Native
     public static final int JCS_YCC = 5;           // PhotoYCC
+    @Native
     public static final int JCS_RGBA = 6;          // RGB-Alpha
+    @Native
     public static final int JCS_YCbCrA = 7;        // Y/Cb/Cr/Alpha
     // 8 and 9 were old "Legacy" codes which the old code never identified
     // on reading anyway.  Support for writing them is being dropped, too.
+    @Native
     public static final int JCS_YCCA = 10;         // PhotoYCC-Alpha
+    @Native
     public static final int JCS_YCCK = 11;         // Y/Cb/Cr/K
     /**
      * The following variable contains a pointer to the IJG library
@@ -106,7 +118,14 @@ public class JPEGImageLoader extends ImageLoaderImpl {
     // Uncomment next line for direct ByteBuffers.
     //private native ByteBuffer decompressDirect(long structPointer, boolean reportProgress) throws IOException;
 
+    //mymod
+    static native void onload();
+    ///mymod
     static {
+        //mymod
+        onload();
+        ///mymod
+
         AccessController.doPrivileged((PrivilegedAction<Object>) () -> {
             NativeLibLoader.loadLibrary("javafx_iio");
             return null;

@@ -47,7 +47,7 @@ import ensemble.samplepage.SamplePage;
 
 /**
  * Sample page navigation with history.
- * 
+ *
  * Also knows how to create Ensemble pages.
  */
 public class PageBrowser extends Region {
@@ -57,7 +57,8 @@ public class PageBrowser extends Region {
     private SamplePage samplePage;
     private SourcePage sourcePage;
     private String currentPageUrl;
-    private DocsPage docsPage;
+    //mymod
+//    private DocsPage docsPage;
     private LinkedList<String> pastHistory = new LinkedList<>();
     private LinkedList<String> futureHistory = new LinkedList<>();
     private BooleanProperty forwardPossible = new SimpleBooleanProperty(false);
@@ -72,7 +73,7 @@ public class PageBrowser extends Region {
     private StringProperty currentPageTitle = new SimpleStringProperty(null);
     public ReadOnlyStringProperty currentPageTitleProperty() { return currentPageTitle; };
     public String getCurrentPageTitle() { return currentPageTitle.get(); }
-    
+
     public void forward() {
         String newUrl = futureHistory.pop();
         if (newUrl != null) {
@@ -80,7 +81,7 @@ public class PageBrowser extends Region {
             goToPage(newUrl, null, false);
         }
     }
-    
+
     public void backward() {
         String newUrl = pastHistory.pop();
         if (newUrl != null) {
@@ -88,23 +89,23 @@ public class PageBrowser extends Region {
             goToPage(newUrl, null, false);
         }
     }
-    
+
     public void goToSample(SampleInfo sample) {
         goToPage("sample://"+sample.ensemblePath, sample, true);
     }
-    
+
     public void goToPage(String url) {
         goToPage(url, null, true);
     }
-    
+
     public void goHome() {
         goToPage(HOME_URL, null, true);
     }
 
     /**
-     * This is called when a inner url has changed inside of a page and we want 
+     * This is called when a inner url has changed inside of a page and we want
      * to update the history.
-     * 
+     *
      * @param newUrl The new url that the currentPage node is displaying
      */
     public void externalPageChange(String newUrl) {
@@ -114,7 +115,7 @@ public class PageBrowser extends Region {
         futureHistory.clear();
         currentPageUrl = newUrl;
     }
-    
+
     private void goToPage(String url, SampleInfo sample, boolean updateHistory) {
         Page nextPage = null;
         // get node for page
@@ -122,7 +123,8 @@ public class PageBrowser extends Region {
             nextPage = getHomePage();
         } else if (url.startsWith("http://") || url.startsWith("https://")) {
             if (WEB_SUPPORTED) {
-                nextPage = updateDocsPage(url);
+            //mymod
+//                nextPage = updateDocsPage(url);
             } else {
                 System.err.println("Web pages are not supported and links to them should be disabled!");
             }
@@ -210,11 +212,12 @@ public class PageBrowser extends Region {
         return homePage;
     }
 
-    private DocsPage updateDocsPage(String url) {
-        if (docsPage == null) {
-            docsPage = new DocsPage(this);
-        }
-        docsPage.goToUrl(url);
-        return docsPage;
-    }
+    //mymod
+//    private DocsPage updateDocsPage(String url) {
+//        if (docsPage == null) {
+//            docsPage = new DocsPage(this);
+//        }
+//        docsPage.goToUrl(url);
+//        return docsPage;
+//    }
 }

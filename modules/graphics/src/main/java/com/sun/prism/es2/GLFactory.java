@@ -25,6 +25,7 @@
 
 package com.sun.prism.es2;
 
+import com.sun.javafx.runtime.MyProps;
 import com.sun.prism.impl.PrismSettings;
 import com.sun.javafx.PlatformUtil;
 import java.security.AccessController;
@@ -62,7 +63,11 @@ abstract class GLFactory {
     static {
 
         final String factoryClassName;
-        if (PlatformUtil.isUnix()) {
+        //mymod
+        if(/*MyProps.web || */PlatformUtil.isSDL())
+            factoryClassName = "com.sun.prism.es2.SDLGLFactory";
+        ///mymod
+        else if (PlatformUtil.isUnix()) {
             if ("eglx11".equals(PlatformUtil.getEmbeddedType()))
                 factoryClassName = "com.sun.prism.es2.EGLX11GLFactory";
             else if ("eglfb".equals(PlatformUtil.getEmbeddedType()))

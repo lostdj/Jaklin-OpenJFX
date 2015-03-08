@@ -4,6 +4,7 @@
     <exclude-output />
     <content url="file://$MODULE_DIR$/apps/toys/FX8-3DFeatures">
       <sourceFolder url="file://$MODULE_DIR$/apps/toys/FX8-3DFeatures/src" isTestSource="false" />
+      <excludeFolder url="file://$MODULE_DIR$/apps/toys/FX8-3DFeatures" />
     </content>
     <orderEntry type="sourceFolder" forTests="false" />
     <orderEntry type="module" module-name="rt" />

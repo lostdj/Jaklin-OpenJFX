@@ -69,6 +69,9 @@ jboolean lens_platform_initialize(LensNativePort* lensPort) {
     lensPort->version = NATIVE_LENS_PORT_VERSION;
     lensPort->setLogger = &setPlatformLogging;    
 
+    //mymod
+    return JNI_TRUE;
+
 #ifdef USE_DISPMAN
     if (select_dispman_cursor(lensPort)) {
         return JNI_TRUE;

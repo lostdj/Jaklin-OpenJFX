@@ -59,8 +59,10 @@ public class DragboardHelper {
 
     private static void forceInit(final Class<?> classToInit) {
         try {
-            Class.forName(classToInit.getName(), true,
-                          classToInit.getClassLoader());
+            //mymod
+            Class.forName(classToInit.getName());
+//            Class.forName(classToInit.getName(), true,
+//                          classToInit.getClassLoader());
         } catch (final ClassNotFoundException e) {
             throw new AssertionError(e);  // Can't happen
         }

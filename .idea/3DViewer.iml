@@ -16,6 +16,7 @@
       <sourceFolder url="file://$MODULE_DIR$/apps/samples/3DViewer/src/main/resources" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/apps/samples/3DViewer/src/test/java" isTestSource="true" />
       <sourceFolder url="file://$MODULE_DIR$/apps/samples/3DViewer/src/test/resources" isTestSource="true" />
+      <excludeFolder url="file://$MODULE_DIR$/apps/samples/3DViewer" />
       <excludeFolder url="file://$MODULE_DIR$/apps/samples/3DViewer/build" />
       <excludeFolder url="file://$MODULE_DIR$/apps/samples/3DViewer/nbproject" />
     </content>

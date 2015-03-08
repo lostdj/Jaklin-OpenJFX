@@ -31,7 +31,7 @@ public abstract class NativePlatform {
     private static InputDeviceRegistry inputDeviceRegistry;
     private final RunnableProcessor runnableProcessor;
     private NativeCursor cursor;
-    private NativeScreen screen;
+    /*mymod*//*private */NativeScreen screen;
     protected AcceleratedScreen accScreen;
 
     protected NativePlatform() {

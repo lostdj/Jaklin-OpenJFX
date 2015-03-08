@@ -4,16 +4,16 @@
     <exclude-output />
     <content url="file://$MODULE_DIR$">
       <excludeFolder url="file://$MODULE_DIR$/.gradle" />
+      <excludeFolder url="file://$MODULE_DIR$/apps" />
+      <excludeFolder url="file://$MODULE_DIR$/build/javafx-src" />
       <excludeFolder url="file://$MODULE_DIR$/build/libs" />
+      <excludeFolder url="file://$MODULE_DIR$/tests" />
     </content>
     <orderEntry type="sourceFolder" forTests="false" />
+    <orderEntry type="module" module-name="base" exported="" />
+    <orderEntry type="module" module-name="graphics" exported="" />
+    <orderEntry type="module" module-name="controls" exported="" />
     <orderEntry type="module" module-name="fxml" exported="" />
-    <orderEntry type="module" module-name="fxpackager" exported="" />
-    <orderEntry type="module" module-name="swt" exported="" />
-    <orderEntry type="module" module-name="swing" exported="" />
-    <orderEntry type="module" module-name="media" exported="" />
-    <orderEntry type="module" module-name="web" exported="" />
     <orderEntry type="inheritedJdk" />
   </component>
 </module>
-

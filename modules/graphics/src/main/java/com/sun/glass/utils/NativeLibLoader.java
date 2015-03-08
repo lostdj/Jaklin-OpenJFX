@@ -35,10 +35,11 @@ public class NativeLibLoader {
     private static final HashSet<String> loaded = new HashSet<String>();
 
     public static synchronized void loadLibrary(String libname) {
-        if (!loaded.contains(libname)) {
-            loadLibraryInternal(libname);
-            loaded.add(libname);
-        }
+        //mymod: commented out.
+//        if (!loaded.contains(libname)) {
+//            loadLibraryInternal(libname);
+//            loaded.add(libname);
+//        }
     }
 
     private static boolean verbose = false;
@@ -53,7 +54,7 @@ public class NativeLibLoader {
             return null;
         });
     }
-    
+
     private static String[] initializePath(String propname) {
         String ldpath = System.getProperty(propname, "");
         String ps = File.pathSeparator;
@@ -126,9 +127,9 @@ public class NativeLibLoader {
                             + libraryName + ") as a fallback");
                 }
             } catch (UnsatisfiedLinkError ex2) {
-                //On iOS we link all libraries staticaly. Presence of library 
+                //On iOS we link all libraries staticaly. Presence of library
                 //is recognized by existence of JNI_OnLoad_libraryname() C function.
-                //If libraryname contains hyphen, it needs to be translated 
+                //If libraryname contains hyphen, it needs to be translated
                 //to underscore to form valid C function indentifier.
                 if ("iOS".equals(System.getProperty("os.name"))
                         && libraryName.contains("-")) {

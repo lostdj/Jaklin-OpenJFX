@@ -92,19 +92,24 @@ static int trapCtrlC = 0;
 
 LensNativePort lensPort;
 
-jint JNI_OnLoad(JavaVM *vm, void *reserved) {
-    JNIEnv *env;
+//mymod
+// jint JNI_OnLoad(JavaVM *vm, void *reserved) {
+JNIEXPORT void JNICALL Java_com_sun_glass_ui_lens_LensApplication_onload(JNIEnv *env, jclass c)
+{
+    // JNIEnv *env;
     char *javafxDebug;
-    pGlassVm = vm;
-    if ((*vm)->GetEnv(vm, (void **) &env, JNI_VERSION_1_6)) {
-        return JNI_ERR; /* JNI version not supported */
-    }
+    // pGlassVm = vm;
+    // if ((*vm)->GetEnv(vm, (void **) &env, JNI_VERSION_1_6)) {
+        // return JNI_ERR; /* JNI version not supported */
+    // }
+    JavaVM *vm;
+    (*env)->GetJavaVM(env, &vm);
     glass_logger_init(vm, env);
     javafxDebug = getenv("JAVAFX_DEBUG");
     if (javafxDebug) {
         trapCtrlC = atoi(javafxDebug);
     }
-    return JNI_VERSION_1_6;
+    // return JNI_VERSION_1_6;
 }
 
 JavaVM *glass_application_GetVM() {
@@ -209,12 +214,17 @@ JNIEXPORT void JNICALL Java_com_sun_glass_ui_lens_LensApplication__1initIDs
     initIDs(env);
 }
 
+//mymod
+extern jboolean lens_platform_initialize(LensNativePort* lensPort);
+///mymod
 static void load_porting_library() {
 #if ! defined(EGL_X11_FB_CONTAINER)
 
     jboolean (*lens_platform_init)(LensNativePort*) = 0;
     const char* liblens_porting = "liblens_porting.so";
 
+//mymod
+/*
 #ifdef ANDROID_NDK    
     //Get the data path. All .so are installed in lib.
     const char *path = android_getDataDir();
@@ -266,6 +276,8 @@ static void load_porting_library() {
         exit(-1);
     }
 #endif
+*/
+    lens_platform_init = &lens_platform_initialize;
     lensPort.version = NATIVE_LENS_PORT_VERSION;
     (*lens_platform_init)(&lensPort);
 

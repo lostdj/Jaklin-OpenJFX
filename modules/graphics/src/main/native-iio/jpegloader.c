@@ -84,11 +84,16 @@ ThrowByName(JNIEnv *env, const char *name, const char *msg) {
     }
 }
 
+//mymod
+static JNIEnv *__jenv;
+
 JNIEXPORT void * JNICALL
 GetEnv(JavaVM *vm, jint version) {
-    void *env;
-    (*vm)->GetEnv(vm, &env, version);
-    return env;
+    //mymod
+    return (void*)__jenv;
+    // void *env;
+    // (*vm)->GetEnv(vm, &env, version);
+    // return env;
 }
 
 /***************** Begin verbatim copy from jni_util.c ***************/
@@ -108,32 +113,39 @@ static jmethodID JPEGImageLoader_emitWarningID;
    first loaded */
 static JavaVM *jvm;
 
-#if USING_BUILTIN_LIBRARY_ENTRYPOINT
-
-JNIEXPORT jint JNICALL
-JNI_OnLoad_javafx_iio(JavaVM *vm, void *reserved) {
-    jvm = vm;
-#ifdef JNI_VERSION_1_8
-    //min. returned JNI_VERSION required by JDK8 for builtin libraries
-    JNIEnv *env;
-    if ((*vm)->GetEnv(vm, (void **)&env, JNI_VERSION_1_8) != JNI_OK) {
-            return JNI_VERSION_1_2;
-    }
-    return JNI_VERSION_1_8;
-#else
-    return JNI_VERSION_1_2;
-#endif
+//mymod
+JNIEXPORT void JNICALL Java_com_sun_javafx_iio_jpeg_JPEGImageLoader_onload
+  (JNIEnv *env, jclass clazz)
+{
+    (*env)->GetJavaVM(env, &jvm);
+    __jenv = env;
 }
+// #if USING_BUILTIN_LIBRARY_ENTRYPOINT
 
-#else
+// JNIEXPORT jint JNICALL
+// JNI_OnLoad_javafx_iio(JavaVM *vm, void *reserved) {
+//     jvm = vm;
+// #ifdef JNI_VERSION_1_8
+//     //min. returned JNI_VERSION required by JDK8 for builtin libraries
+//     JNIEnv *env;
+//     if ((*vm)->GetEnv(vm, (void **)&env, JNI_VERSION_1_8) != JNI_OK) {
+//             return JNI_VERSION_1_2;
+//     }
+//     return JNI_VERSION_1_8;
+// #else
+//     return JNI_VERSION_1_2;
+// #endif
+// }
 
-JNIEXPORT jint JNICALL
-JNI_OnLoad(JavaVM *vm, void *reserved) {
-    jvm = vm;
-    return JNI_VERSION_1_2;
-}
+// #else
 
-#endif
+// JNIEXPORT jint JNICALL
+// JNI_OnLoad(JavaVM *vm, void *reserved) {
+//     jvm = vm;
+//     return JNI_VERSION_1_2;
+// }
+
+// #endif
 
 
 /*

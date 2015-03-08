@@ -30,6 +30,7 @@ import java.util.Map;
 
 import com.sun.glass.ui.Screen;
 import com.sun.javafx.PlatformUtil;
+import com.sun.javafx.runtime.MyProps;
 import com.sun.prism.Image;
 import com.sun.prism.MediaFrame;
 import com.sun.prism.Mesh;
@@ -72,7 +73,7 @@ public class ES2ResourceFactory extends BaseShaderFactory {
             System.out.println("Maximum number of vertex attributes = "
                     + context.getGLContext().getIntParam(GLContext.GL_MAX_VERTEX_ATTRIBS));
             int maxVUC, maxFUC, maxVC;
-            // We need this if-else block is because iMX6 doesn't support component queries 
+            // We need this if-else block is because iMX6 doesn't support component queries
             // and Mac  doesn't support vectors queries.
             if (PlatformUtil.isEmbedded()) {
                 // Multiply by 4 as it is documented that a vector has 4 components.
@@ -173,7 +174,8 @@ public class ES2ResourceFactory extends BaseShaderFactory {
                 } else {
                     // for OpenGLES, BGRA can be supported by extension - if
                     // we have it, use it
-                    return glFactory.isGLExtensionSupported("GL_EXT_texture_format_BGRA8888");
+                    //mymod: See ES2Texture.uploadPixels() switch (format): fallback to GL_RGBA.
+                    return glFactory.isGLExtensionSupported("GL_EXT_texture_format_BGRA8888") || MyProps.web;
                 }
             case FLOAT_XYZW:
                 return glFactory.isGL2()

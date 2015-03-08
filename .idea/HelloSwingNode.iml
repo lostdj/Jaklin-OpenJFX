@@ -4,6 +4,7 @@
     <exclude-output />
     <content url="file://$MODULE_DIR$/apps/scenebuilder/samples/HelloSwingNode">
       <sourceFolder url="file://$MODULE_DIR$/apps/scenebuilder/samples/HelloSwingNode/src" isTestSource="false" />
+      <excludeFolder url="file://$MODULE_DIR$/apps/scenebuilder/samples/HelloSwingNode" />
     </content>
     <orderEntry type="sourceFolder" forTests="false" />
     <orderEntry type="module" module-name="rt" />

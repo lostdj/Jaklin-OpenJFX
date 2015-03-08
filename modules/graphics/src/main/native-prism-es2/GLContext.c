@@ -621,6 +621,28 @@ JNIEXPORT jint JNICALL Java_com_sun_prism_es2_GLContext_nCompileShader
     /* Null-terminated "C" strings */
     GLchar *shaderString = NULL;
     ContextInfo *ctxInfo = (ContextInfo *) jlong_to_ptr(nativeCtxInfo);
+        //mymod: added.
+        if(ctxInfo == NULL)
+            fprintf(stderr,
+                            "Java_com_sun_prism_es2_GLContext_nCompileShader: "
+                            "ctxInfo == NULL \n");
+        else if((src == NULL)
+                        || (ctxInfo->glCreateShader == NULL)
+                        || (ctxInfo->glShaderSource == NULL)
+                        || (ctxInfo->glCompileShader == NULL)
+                        || (ctxInfo->glGetShaderiv == NULL)
+                        || (ctxInfo->glGetShaderInfoLog == NULL)
+                        || (ctxInfo->glDeleteShader == NULL))
+            fprintf(stderr,
+                            "Java_com_sun_prism_es2_GLContext_nCompileShader: "
+                            "%d %d %d %d %d %d %d \n",
+                            (src == NULL),
+                            (ctxInfo->glCreateShader == NULL),
+                            (ctxInfo->glShaderSource == NULL),
+                            (ctxInfo->glCompileShader == NULL),
+                            (ctxInfo->glGetShaderiv == NULL),
+                            (ctxInfo->glGetShaderInfoLog == NULL),
+                            (ctxInfo->glDeleteShader == NULL));
     if ((ctxInfo == NULL) || (src == NULL)
             || (ctxInfo->glCreateShader == NULL)
             || (ctxInfo->glShaderSource == NULL)
@@ -635,7 +657,34 @@ JNIEXPORT jint JNICALL Java_com_sun_prism_es2_GLContext_nCompileShader
     shaderType = vertex ? GL_VERTEX_SHADER : GL_FRAGMENT_SHADER;
     shaderID = ctxInfo->glCreateShader(shaderType);
     shaderString = (GLchar *) strJavaToC(env, src);
+        //mymod
+        if(shaderID == 0) {
+            fprintf(stderr,
+                            "Java_com_sun_prism_es2_GLContext_nCompileShader: "
+                            "shaderID == 0 \n");
+            GLenum GLerror;
+            if ((GLerror = glGetError()) != GL_NO_ERROR)
+                    fprintf(stderr, "GL error: %x\n", GLerror);
+
+            GLint  length;
+
+            ctxInfo->glGetShaderiv(shaderID, GL_INFO_LOG_LENGTH, &length);
+            if (length) {
+                    char* msg = (char *) malloc(length * sizeof(char));
+                    ctxInfo->glGetShaderInfoLog(shaderID, length, NULL, msg);
+                    fprintf(stderr,
+                            "Java_com_sun_prism_es2_GLContext_nCompileShader: "
+                                    "glCreateShader log: %.*s\n", length, msg);
+                    free(msg);
+            }
+
+            return 0;
+        }
     if (shaderString == NULL) {
+            //mymod
+            fprintf(stderr,
+                            "Java_com_sun_prism_es2_GLContext_nCompileShader: "
+                            "shaderString == NULL \n");
         /* Just return, since strJavaToC will throw OOM if it returns NULL */
         return 0;
     }
@@ -646,6 +695,10 @@ JNIEXPORT jint JNICALL Java_com_sun_prism_es2_GLContext_nCompileShader
     free(shaderString);
 
     if (success == GL_FALSE) {
+            //mymod
+            fprintf(stderr,
+                            "Java_com_sun_prism_es2_GLContext_nCompileShader: "
+                            "success == GL_FALSE \n");
         GLint  length;
 
         ctxInfo->glGetShaderiv(shaderID, GL_INFO_LOG_LENGTH, &length);

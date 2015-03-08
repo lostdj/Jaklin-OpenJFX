@@ -12,11 +12,11 @@
       <excludeFolder url="file://$MODULE_DIR$/modules/controls/build/dependency-cache" />
       <excludeFolder url="file://$MODULE_DIR$/modules/controls/build/libs" />
       <excludeFolder url="file://$MODULE_DIR$/modules/controls/build/reports" />
+      <excludeFolder url="file://$MODULE_DIR$/modules/controls/src/test" />
     </content>
     <orderEntry type="sourceFolder" forTests="false" />
-    <orderEntry type="module" module-name="base" exported="" />
-    <orderEntry type="module" module-name="graphics" exported="" />
+    <orderEntry type="module" module-name="base" />
+    <orderEntry type="module" module-name="graphics" />
     <orderEntry type="inheritedJdk" />
   </component>
 </module>
-

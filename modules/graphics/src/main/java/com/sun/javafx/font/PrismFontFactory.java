@@ -87,12 +87,27 @@ public abstract class PrismFontFactory implements FontFactory {
         new HashMap<String, CompositeFontResource>();
 
     static {
-        isWindows = PlatformUtil.isWindows();
-        isMacOSX  = PlatformUtil.isMac();
-        isLinux   = PlatformUtil.isLinux();
-        isIOS     = PlatformUtil.isIOS();
-        isAndroid = PlatformUtil.isAndroid();
-        isEmbedded = PlatformUtil.isEmbedded();
+        //mymod
+        isWindows = false;
+        isMacOSX  = false;
+        isLinux   = true;
+        isIOS     = false;
+        isAndroid = false;
+        isEmbedded = false;
+
+//        isWindows = false;
+//        isMacOSX  = false;
+//        isLinux   = false;
+//        isIOS     = false;
+//        isAndroid = false;
+//        isEmbedded = true;
+
+//        isWindows = PlatformUtil.isWindows();
+//        isMacOSX  = PlatformUtil.isMac();
+//        isLinux   = PlatformUtil.isLinux();
+//        isIOS     = PlatformUtil.isIOS();
+//        isAndroid = PlatformUtil.isAndroid();
+//        isEmbedded = PlatformUtil.isEmbedded();
         int[] tempCacheLayoutSize = {0x10000};
 
         debugFonts = AccessController.doPrivileged(
@@ -100,9 +115,12 @@ public abstract class PrismFontFactory implements FontFactory {
                     NativeLibLoader.loadLibrary("javafx_font");
                     String dbg = System.getProperty("prism.debugfonts", "");
                     boolean debug = "true".equals(dbg);
+                    //mymod
                     jreFontDir =
-                    System.getProperty("java.home","") + File.separator +
-                    "lib" + File.separator + "fonts" + File.separator;
+                            "";
+//                    System.getProperty("java.home","") + File.separator +
+//                    "lib" + File.separator + "fonts" + File.separator;
+                    ///mymod
                     String s = System.getProperty("com.sun.javafx.fontSize");
                     systemFontSize = -1f;
                     if (s != null) {
@@ -136,7 +154,7 @@ public abstract class PrismFontFactory implements FontFactory {
                         }
                     }
 
-                    useNativeRasterizer = isMacOSX || isWindows || isLinux;
+                    useNativeRasterizer = true;//mymod isMacOSX || isWindows || (isLinux && !isEmbedded);
                     String defPrismText = useNativeRasterizer ? "native" : "t2k";
                     String prismText = System.getProperty("prism.text", defPrismText);
                     if (useNativeRasterizer) {
@@ -171,10 +189,12 @@ public abstract class PrismFontFactory implements FontFactory {
     }
 
     private static String getNativeFactoryName() {
-        if (isWindows) return DW_FACTORY;
-        if (isMacOSX || isIOS) return CT_FACTORY;
-        if (isLinux || isAndroid) return FT_FACTORY;
-        return null;
+        //mymod
+        return FT_FACTORY;
+        // if (isWindows) return DW_FACTORY;
+        // if (isMacOSX || isIOS) return CT_FACTORY;
+        // if (isLinux || isAndroid) return FT_FACTORY;
+//        return null;
     }
 
     public static float getFontSizeLimit() {
@@ -1710,7 +1730,8 @@ public abstract class PrismFontFactory implements FontFactory {
             familyToFontListMap = new HashMap<String,ArrayList<String>>(50);
             fileToFontMap = new HashMap<String,String>(100);
 
-            if (isWindows) {
+            //mymod
+            /*if (isWindows) {
                 getPlatformFontDirs();
                 populateFontFileNameMap(tmpFontToFileMap,
                                         fontToFamilyNameMap,
@@ -1758,7 +1779,7 @@ public abstract class PrismFontFactory implements FontFactory {
                         fontToFamilyNameMap,
                         familyToFontListMap,
                         Locale.ENGLISH);
-           } else { /* unrecognised OS */
+           } else*/ { /* unrecognised OS */
                 fontToFileMap = tmpFontToFileMap;
                 return fontToFileMap;
             }
@@ -1766,25 +1787,26 @@ public abstract class PrismFontFactory implements FontFactory {
             /* Reverse map from file to font. file name is base name
              * not a full path.
              */
-            for (String font : tmpFontToFileMap.keySet()) {
-                String file = tmpFontToFileMap.get(font);
-                fileToFontMap.put(file.toLowerCase(), font);
-            }
-
-            fontToFileMap = tmpFontToFileMap;
-            if (isAndroid) {
-                populateFontFileNameMapGeneric(
-                       AndroidFontFinder.getSystemFontsDir());
-            }
-            populateFontFileNameMapGeneric(jreFontDir);
-
-//             for (String keyName : fontToFileMap.keySet()) {
-//               System.out.println("font="+keyName+" file="+ fontToFileMap.get(keyName));
-//             }
-
-//             for (String keyName : familyToFontListMap.keySet()) {
-//               System.out.println("family="+keyName);
-//             }
+            //mymod
+//            for (String font : tmpFontToFileMap.keySet()) {
+//                String file = tmpFontToFileMap.get(font);
+//                fileToFontMap.put(file.toLowerCase(), font);
+//            }
+//
+//            fontToFileMap = tmpFontToFileMap;
+//            if (isAndroid) {
+//                populateFontFileNameMapGeneric(
+//                       AndroidFontFinder.getSystemFontsDir());
+//            }
+//            populateFontFileNameMapGeneric(jreFontDir);
+//
+////             for (String keyName : fontToFileMap.keySet()) {
+////               System.out.println("font="+keyName+" file="+ fontToFileMap.get(keyName));
+////             }
+//
+////             for (String keyName : familyToFontListMap.keySet()) {
+////               System.out.println("family="+keyName);
+////             }
         }
         return fontToFileMap;
     }
@@ -1917,7 +1939,7 @@ public abstract class PrismFontFactory implements FontFactory {
                 try {
                     int screenDPI = Screen.getMainScreen().getResolutionY();
                     systemFontSize = ((float) screenDPI) / 6f; // 12 points
-                } catch (NullPointerException npe) {
+                } catch (/*mymod*/Throwable/*NullPointerException*/ npe) {
                     // if no screen is defined
                     systemFontSize = 13f; // same as desktop Linux
                 }

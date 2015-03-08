@@ -24,5 +24,11 @@
  */
 package com.sun.glass.events;
 
+import java.lang.annotation.Native;
+
 public class WheelEvent {
+    //mymod
+
+    @Native
+    public static final int DUMMY = 1;
 }

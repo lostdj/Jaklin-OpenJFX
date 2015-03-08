@@ -117,7 +117,16 @@ JNIEXPORT jboolean JNICALL Java_com_sun_glass_ui_monocle_EGL_eglChooseConfig
     EGLint numConfigPtr=0;
     jboolean retval;
 
-    if (!eglChooseConfig(asPtr(eglDisplay), eglAttrs, configArray, configSize,
+		EGLint attribList[] =
+		{
+				EGL_RED_SIZE,       5,
+				EGL_GREEN_SIZE,     6,
+				EGL_BLUE_SIZE,      5,
+
+				EGL_NONE
+		};
+
+    if (!eglChooseConfig(asPtr(eglDisplay), eglAttrs/*attribList*/, configArray, configSize,
                                &numConfigPtr)) {
         retval = JNI_FALSE;
     } else {
@@ -144,6 +153,12 @@ JNIEXPORT jlong JNICALL Java_com_sun_glass_ui_monocle_EGL__1eglCreateWindowSurfa
     if (attribs != NULL)
         attrArray = (*env)->GetIntArrayElements(env, attribs, JNI_FALSE);
 
+		//mymod
+//		 EGLConfig myc[1];
+//		 EGLint mytmp;
+//		 eglGetConfigs(asPtr(eglDisplay), myc, 1, &mytmp);
+//		 config = (jlong)myc[0];
+		///mymod
     eglSurface =  eglCreateWindowSurface(asPtr(eglDisplay), asPtr(config),
                                          (EGLNativeWindowType) asPtr(nativeWindow),
                                          (EGLint *) NULL);
@@ -153,9 +168,9 @@ JNIEXPORT jlong JNICALL Java_com_sun_glass_ui_monocle_EGL__1eglCreateWindowSurfa
     return asJLong(eglSurface);
 }
 
+//mymod: edited func sig for nativemapper.
 JNIEXPORT jlong JNICALL Java_com_sun_glass_ui_monocle_EGL_eglCreateContext
-    (JNIEnv *UNUSED(env), jclass UNUSED(clazz), jlong eglDisplay, jlong config,
-      jlong UNUSED(shareContext), jintArray UNUSED(attribs)){
+    (JNIEnv *UNUSED(env), jclass UNUSED(clazz), jlong eglDisplay, jlong config,jlong UNUSED(shareContext), jintArray UNUSED(attribs)){
 
     // we don't support any passed-in context attributes presently
     // we don't support any share context presently
@@ -190,16 +205,4 @@ JNIEXPORT jint  JNICALL Java_com_sun_glass_ui_monocle_EGL_eglGetError
     (JNIEnv *UNUSED(env), jclass UNUSED(clazz)) {
     return (jint)eglGetError();
 }
-
-
-
-
-
-
-
-
-
-
-
-
 

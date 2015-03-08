@@ -24,10 +24,18 @@
  */
 package com.sun.glass.events;
 
+import java.lang.annotation.Native;
+
 public class TouchEvent
 {
+    //mymod
+
+    @Native
     public final static int TOUCH_PRESSED = 811;
+    @Native
     public final static int TOUCH_MOVED = 812;
+    @Native
     public final static int TOUCH_RELEASED = 813;
+    @Native
     public final static int TOUCH_STILL = 814;
 }

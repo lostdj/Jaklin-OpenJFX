@@ -24,9 +24,15 @@
  */
 package com.sun.glass.events;
 
-public class GestureEvent {
+import java.lang.annotation.Native;
 
+public class GestureEvent {
+    //mymod
+
+    @Native
     public final static int GESTURE_STARTED = 1;
+    @Native
     public final static int GESTURE_PERFORMED = 2;
+    @Native
     public final static int GESTURE_FINISHED = 3;
 }

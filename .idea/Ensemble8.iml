@@ -24,7 +24,12 @@
       <sourceFolder url="file://$MODULE_DIR$/apps/samples/Ensemble8/src/generated/java" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/apps/samples/Ensemble8/src/generated/resources" isTestSource="false" />
       <excludeFolder url="file://$MODULE_DIR$/apps/samples/Ensemble8/build" />
+      <excludeFolder url="file://$MODULE_DIR$/apps/samples/Ensemble8/lib" />
       <excludeFolder url="file://$MODULE_DIR$/apps/samples/Ensemble8/nbproject" />
+      <excludeFolder url="file://$MODULE_DIR$/apps/samples/Ensemble8/src/samples/java/ensemble/samples/controls/htmleditor" />
+      <excludeFolder url="file://$MODULE_DIR$/apps/samples/Ensemble8/src/samples/java/ensemble/samples/controls/webview" />
+      <excludeFolder url="file://$MODULE_DIR$/apps/samples/Ensemble8/src/samples/java/ensemble/samples/language/swing" />
+      <excludeFolder url="file://$MODULE_DIR$/apps/samples/Ensemble8/src/samples/java/ensemble/samples/media" />
     </content>
     <orderEntry type="sourceFolder" forTests="false" />
     <orderEntry type="module" module-name="rt" />
@@ -58,4 +63,3 @@
     <orderEntry type="inheritedJdk" />
   </component>
 </module>
-

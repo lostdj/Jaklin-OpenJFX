@@ -51,6 +51,10 @@ class X11AcceleratedScreen extends AcceleratedScreen {
          * This workaround can be removed when the bug in the drivers is fixed.
          */
         if (nativeDisplay == null) {
+            /*mymod*/if(!xLib.XInitThreads())
+                //mymod
+                throw new RuntimeException("Failed to XInitThreads().");
+
             boolean doMaliWorkaround =
                     AccessController.doPrivileged(
                             (PrivilegedAction<Boolean>) () ->
@@ -76,8 +80,14 @@ class X11AcceleratedScreen extends AcceleratedScreen {
 
     @Override
     protected long platformGetNativeWindow() {
-        return NativePlatformFactory.getNativePlatform()
-                .getScreen().getNativeHandle();
+        //mymod
+//        return NativePlatformFactory.getNativePlatform()
+//                .getScreen().getNativeHandle();
+        X11Platform p = (X11Platform)NativePlatformFactory.getNativePlatform();
+        if(p.screen == null)
+            p.screen = new X11Screen(p.x11Input, platformGetNativeDisplay());
+
+        return p.screen.getNativeHandle();
     }
 
     @Override

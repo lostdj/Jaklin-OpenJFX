@@ -23,8 +23,9 @@
  * questions.
  */
 
-#if defined __linux__ || ANDROID_NDK
-#if defined _ENABLE_PANGO || _ENABLE_HARFBUZZ
+// mymod: commented out.
+// #if defined __linux__ || ANDROID_NDK
+// #if defined _ENABLE_PANGO || _ENABLE_HARFBUZZ
 
 #include <jni.h>
 #include <com_sun_javafx_font_freetype_OSFreetype.h>
@@ -338,7 +339,7 @@ jobject newFT_GlyphSlotRec(JNIEnv *env, FT_GlyphSlotRec *lpStruct)
 /*                                                                        */
 /**************************************************************************/
 
-JNIEXPORT jobject JNICALL OS_NATIVE(getGlyphSlot)(JNIEnv *env, jclass that, jlong facePtr)
+JNIEXPORT jobject JNICALL Java_com_sun_javafx_font_freetype_OSFreetype_getGlyphSlot(JNIEnv *env, jclass that, jlong facePtr)
 {
     jobject result = NULL;
     if (facePtr) {
@@ -351,7 +352,7 @@ JNIEXPORT jobject JNICALL OS_NATIVE(getGlyphSlot)(JNIEnv *env, jclass that, jlon
     return result;
 }
 
-JNIEXPORT jbyteArray JNICALL OS_NATIVE(getBitmapData)(JNIEnv *env, jclass that, jlong facePtr)
+JNIEXPORT jbyteArray JNICALL Java_com_sun_javafx_font_freetype_OSFreetype_getBitmapData(JNIEnv *env, jclass that, jlong facePtr)
 {
     if (!facePtr) return NULL;
     FT_Face face = (FT_Face)facePtr;
@@ -372,7 +373,7 @@ JNIEXPORT jbyteArray JNICALL OS_NATIVE(getBitmapData)(JNIEnv *env, jclass that, 
     return result;
 }
 
-JNIEXPORT void JNICALL OS_NATIVE(FT_1Set_1Transform)
+JNIEXPORT void JNICALL Java_com_sun_javafx_font_freetype_OSFreetype_FT_1Set_1Transform
     (JNIEnv *env, jclass that, jlong arg0, jobject arg1, jlong arg2, jlong arg3)
 {
     FT_Vector *lpDelta = NULL;
@@ -390,29 +391,30 @@ JNIEXPORT void JNICALL OS_NATIVE(FT_1Set_1Transform)
 }
 
 #define LIB_FREETYPE "libfreetype.so"
-JNIEXPORT jint JNICALL OS_NATIVE(FT_1Library_1SetLcdFilter)
+JNIEXPORT jint JNICALL Java_com_sun_javafx_font_freetype_OSFreetype_FT_1Library_1SetLcdFilter
     (JNIEnv *env, jclass that, jlong arg0, jint arg1)
 {
-//  return (jint)FT_Library_SetLcdFilter((FT_Library)arg0, (FT_LcdFilter)arg1);
-    static void *fp = NULL;
-    if (!fp) {
-        void* handle = dlopen(LIB_FREETYPE, RTLD_LAZY);
-        if (handle) fp = dlsym(handle, "FT_Library_SetLcdFilter");
-    }
-    jint rc = 0;
-    if (fp) {
-        rc = (jint)((jint (*)(jlong, jint))fp)(arg0, arg1);
-    }
-    return rc;
+    //mymod
+    return (jint)FT_Library_SetLcdFilter((FT_Library)arg0, (FT_LcdFilter)arg1);
+    // static void *fp = NULL;
+    // if (!fp) {
+    //     void* handle = dlopen(LIB_FREETYPE, RTLD_LAZY);
+    //     if (handle) fp = dlsym(handle, "FT_Library_SetLcdFilter");
+    // }
+    // jint rc = 0;
+    // if (fp) {
+    //     rc = (jint)((jint (*)(jlong, jint))fp)(arg0, arg1);
+    // }
+    // return rc;
 }
 
-JNIEXPORT jint JNICALL OS_NATIVE(FT_1Done_1Face)
+JNIEXPORT jint JNICALL Java_com_sun_javafx_font_freetype_OSFreetype_FT_1Done_1Face
     (JNIEnv *env, jclass that, jlong arg0)
 {
     return (jint)FT_Done_Face((FT_Face)arg0);
 }
 
-JNIEXPORT void JNICALL OS_NATIVE(FT_1Library_1Version)
+JNIEXPORT void JNICALL Java_com_sun_javafx_font_freetype_OSFreetype_FT_1Library_1Version
     (JNIEnv *env, jclass that, jlong arg0, jintArray arg1, jintArray arg2, jintArray arg3)
 {
     jint *lparg1=NULL;
@@ -428,13 +430,13 @@ fail:
     if (arg1 && lparg1) (*env)->ReleaseIntArrayElements(env, arg1, lparg1, 0);
 }
 
-JNIEXPORT jint JNICALL OS_NATIVE(FT_1Done_1FreeType)
+JNIEXPORT jint JNICALL Java_com_sun_javafx_font_freetype_OSFreetype_FT_1Done_1FreeType
     (JNIEnv *env, jclass that, jlong arg0)
 {
     return (jint)FT_Done_FreeType((FT_Library)arg0);
 }
 
-JNIEXPORT jint JNICALL OS_NATIVE(FT_1Init_1FreeType)
+JNIEXPORT jint JNICALL Java_com_sun_javafx_font_freetype_OSFreetype_FT_1Init_1FreeType
     (JNIEnv *env, jclass that, jlongArray arg0)
 {
     jlong *lparg0=NULL;
@@ -446,13 +448,13 @@ fail:
     return rc;
 }
 
-JNIEXPORT jint JNICALL OS_NATIVE(FT_1Load_1Glyph)
+JNIEXPORT jint JNICALL Java_com_sun_javafx_font_freetype_OSFreetype_FT_1Load_1Glyph
     (JNIEnv *env, jclass that, jlong arg0, jint arg1, jint arg2)
 {
     return (jint)FT_Load_Glyph((FT_Face)arg0, (FT_UInt)arg1, (FT_Int32)arg2);
 }
 
-JNIEXPORT jint JNICALL OS_NATIVE(FT_1New_1Face)
+JNIEXPORT jint JNICALL Java_com_sun_javafx_font_freetype_OSFreetype_FT_1New_1Face
     (JNIEnv *env, jclass that, jlong arg0, jbyteArray arg1, jlong arg2, jlongArray arg3)
 {
     jbyte *lparg1=NULL;
@@ -467,7 +469,7 @@ fail:
     return rc;
 }
 
-JNIEXPORT jint JNICALL OS_NATIVE(FT_1Set_1Char_1Size)
+JNIEXPORT jint JNICALL Java_com_sun_javafx_font_freetype_OSFreetype_FT_1Set_1Char_1Size
     (JNIEnv *env, jclass that, jlong arg0, jlong arg1, jlong arg2, jint arg3, jint arg4)
 {
     return (jint)FT_Set_Char_Size((FT_Face)arg0, (FT_F26Dot6)arg1, (FT_F26Dot6)arg2, (FT_UInt)arg3, (FT_UInt)arg4);
@@ -561,7 +563,7 @@ static const  FT_Outline_Funcs JFX_Outline_Funcs =
     0, 0
 };
 
-JNIEXPORT jobject JNICALL OS_NATIVE(FT_1Outline_1Decompose)
+JNIEXPORT jobject JNICALL Java_com_sun_javafx_font_freetype_OSFreetype_FT_1Outline_1Decompose
     (JNIEnv *env, jclass that, jlong arg0)
 {
     FT_Face face = (FT_Face)arg0;
@@ -627,7 +629,7 @@ fail:
     return path2D;
 }
 
-JNIEXPORT jboolean JNICALL JNICALL OS_NATIVE(isPangoEnabled)
+JNIEXPORT jboolean JNICALL Java_com_sun_javafx_font_freetype_OSFreetype_isPangoEnabled
     (JNIEnv *env, jclass that) {
     #ifdef _ENABLE_PANGO
     return JNI_TRUE;
@@ -636,7 +638,7 @@ JNIEXPORT jboolean JNICALL JNICALL OS_NATIVE(isPangoEnabled)
     #endif
 }
 
-JNIEXPORT jboolean JNICALL JNICALL OS_NATIVE(isHarfbuzzEnabled)
+JNIEXPORT jboolean JNICALL Java_com_sun_javafx_font_freetype_OSFreetype_isHarfbuzzEnabled
   (JNIEnv *env, jclass that) {
     #ifdef _ENABLE_HARFBUZZ
     return JNI_TRUE;
@@ -645,5 +647,7 @@ JNIEXPORT jboolean JNICALL JNICALL OS_NATIVE(isHarfbuzzEnabled)
     #endif
 }
 
-#endif /* ENABLE_PANGO || ENABLE_HARFBUZZ */
-#endif /* __linux__ || ANDROID_NDK */
+// mymod: commented out.
+// #endif /* ENABLE_PANGO || ENABLE_HARFBUZZ */
+// #endif /* __linux__ || ANDROID_NDK */
+

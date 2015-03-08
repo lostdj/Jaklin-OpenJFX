@@ -127,18 +127,22 @@ is_display_valid() {
     return displayValid;
 }
 
-JNIEXPORT jint JNICALL
-JNI_OnLoad(JavaVM *jvm, void *reserved)
+//mymod
+// JNIEXPORT jint JNICALL
+// JNI_OnLoad(JavaVM *jvm, void *reserved)
+extern "C" JNIEXPORT jint JNICALL Java_com_sun_glass_ui_gtk_GtkApplication_onload
+  (JNIEnv *env, jclass clazzz_)
 {
-    (void)reserved;
+    //(void)reserved;
 
-    JNIEnv *env;
+    // JNIEnv *env;
     jclass clazz;
     Display* display;
 
-    if (jvm->GetEnv((void **)&env, JNI_VERSION_1_6)) {
-         return JNI_ERR; /* JNI version not supported */
-     }
+    //mymod
+    // if (jvm->GetEnv((void **)&env, JNI_VERSION_1_6)) {
+    //      return JNI_ERR; /* JNI version not supported */
+    //  }
 
     clazz = env->FindClass("java/lang/String");
     if (env->ExceptionCheck()) return JNI_ERR;

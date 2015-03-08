@@ -104,7 +104,8 @@ class OSFreetype {
     static final native int FT_Library_SetLcdFilter(long library, int filter);
     static final native int FT_New_Face(long library, byte[] filepathname, long face_index, long[] aface);
     static final native int FT_Done_Face(long face);
-    static final native int FT_Get_Char_Index(long face, long charcode);
+    // mymod: commented out.
+//    static final native int FT_Get_Char_Index(long face, long charcode);
     static final native int FT_Set_Char_Size(long face, long char_width, long char_height, int horz_resolution, int vert_resolution);
     static final native int FT_Load_Glyph(long face, int glyph_index, int load_flags);
     static final native void FT_Set_Transform(long face, FT_Matrix matrix, long delta_x, long delta_y);

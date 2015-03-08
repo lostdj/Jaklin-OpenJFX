@@ -11,15 +11,25 @@
       <sourceFolder url="file://$MODULE_DIR$/modules/graphics/build/resources/jsl-prism" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/modules/graphics/src/test/java" isTestSource="true" />
       <sourceFolder url="file://$MODULE_DIR$/modules/graphics/src/test/resources" isTestSource="true" />
+      <sourceFolder url="file://$MODULE_DIR$/modules/graphics/src/main/jsl-decora" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/modules/graphics/src/main/jsl-prism" isTestSource="false" />
       <excludeFolder url="file://$MODULE_DIR$/modules/graphics/build/classes" />
       <excludeFolder url="file://$MODULE_DIR$/modules/graphics/build/dependency-cache" />
       <excludeFolder url="file://$MODULE_DIR$/modules/graphics/build/libs" />
       <excludeFolder url="file://$MODULE_DIR$/modules/graphics/build/resources" />
       <excludeFolder url="file://$MODULE_DIR$/modules/graphics/build/tmp" />
+      <excludeFolder url="file://$MODULE_DIR$/modules/graphics/src/main/java/com/sun/glass/ui/swt" />
+      <excludeFolder url="file://$MODULE_DIR$/modules/graphics/src/main/jsl-decora" />
+      <excludeFolder url="file://$MODULE_DIR$/modules/graphics/src/main/jsl-prism" />
+      <excludeFolder url="file://$MODULE_DIR$/modules/graphics/src/test" />
+    </content>
+    <content url="file://$MODULE_DIR$/out/tux-x64-debug/build/fx/bsrc_gengrammar">
+      <sourceFolder url="file://$MODULE_DIR$/out/tux-x64-debug/build/fx/bsrc_gengrammar" isTestSource="false" />
+      <excludeFolder url="file://$MODULE_DIR$/out/tux-x64-debug/build/fx/bsrc_gengrammar" />
     </content>
     <orderEntry type="sourceFolder" forTests="false" />
-    <orderEntry type="module" module-name="base" exported="" />
+    <orderEntry type="module" module-name="buildSrc" />
+    <orderEntry type="module" module-name="base" />
     <orderEntry type="inheritedJdk" />
   </component>
 </module>
-

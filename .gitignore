@@ -1,0 +1,14 @@
+/.idea/out/
+
+.gradle
+**build/reports/*
+**build/test-results/*
+/build/javafx-src
+/build/sdk
+/build/classes
+/build/native
+/buildSrc/**/build/classes/
+/buildSrc/**/build/native/
+/modules/**/build/classes/
+/modules/**/build/native/
+

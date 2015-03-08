@@ -30,6 +30,7 @@ import java.security.PrivilegedAction;
 import java.util.List;
 import java.util.Map;
 
+import com.sun.javafx.runtime.MyProps;
 import javafx.application.Preloader.PreloaderNotification;
 import javafx.scene.Scene;
 import javafx.stage.Stage;
@@ -143,6 +144,13 @@ public class MyApp extends Application {
  * @since JavaFX 2.0
  */
 public abstract class Application {
+    //mymod
+    static
+    {
+        MyProps.init();
+    }
+
+
     /**
      * Constant for user agent stylesheet for the "Caspian" theme. Caspian
      * is the theme that shipped as default in JavaFX 2.x.
@@ -189,6 +197,9 @@ public abstract class Application {
      */
     public static void launch(Class<? extends Application> appClass, String... args) {
         LauncherImpl.launchApplication(appClass, args);
+
+        //mymod
+        tryTick();
     }
 
     /**
@@ -259,6 +270,9 @@ public abstract class Application {
         } catch (Exception ex) {
             throw new RuntimeException(ex);
         }
+
+        //mymod
+        tryTick();
     }
 
     /**
@@ -303,6 +317,27 @@ public abstract class Application {
      * primary stages and will not be embedded in the browser.
      */
     public abstract void start(Stage primaryStage) throws Exception;
+
+
+    //mymod
+    public static boolean tick()
+    {
+        if(com.sun.glass.ui.Application.GetApplication() == null)
+            return false;
+
+        com.sun.glass.ui.Application.GetApplication().tick();
+
+        return true;
+    }
+
+    public static void tryTick()
+    {
+        //mymod
+        if(!MyProps.web && !MyProps.loop)
+            while(Application.tick())
+                ;
+    }
+
 
     /**
      * This method is called when the application should stop, and provides a

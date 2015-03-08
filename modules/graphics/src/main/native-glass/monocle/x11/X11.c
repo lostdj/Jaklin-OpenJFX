@@ -26,12 +26,16 @@
 #include "com_sun_glass_ui_monocle_X.h"
 #include <X11/Xlib.h>
 #include <X11/Xlibint.h>
+ //mymod
+#include <X11/Xutil.h>
+#include <X11/keysym.h>
 #include "Monocle.h"
 
-JNIEXPORT void JNICALL
+JNIEXPORT jboolean JNICALL
  Java_com_sun_glass_ui_monocle_X_XInitThreads
  (JNIEnv *UNUSED(env), jclass UNUSED(xClass)) {
-    XInitThreads();
+    //mymod
+    return XInitThreads();
  }
 
 JNIEXPORT void JNICALL
@@ -63,13 +67,15 @@ JNIEXPORT jlong JNICALL
 JNIEXPORT jlong JNICALL
  Java_com_sun_glass_ui_monocle_X_DefaultScreenOfDisplay
  (JNIEnv *UNUSED(env), jclass UNUSED(xClass), jlong display) {
+	//mymod
+//		Screen *screen = DefaultScreen((Display *) asPtr(display));
     Screen *screen = DefaultScreenOfDisplay((Display *) asPtr(display));
     return asJLong(screen);
 }
 
 JNIEXPORT jlong JNICALL
  Java_com_sun_glass_ui_monocle_X_RootWindowOfScreen
- (JNIEnv *UNUSED(env), jclass UNUSED(xClass), jlong screen) {
+ (JNIEnv *UNUSED(env), jclass UNUSED(xClass), jlong screen, /*mymod*/jlong __derp) {
     return asJLong(RootWindowOfScreen((Screen *) asPtr(screen)));
 }
 
@@ -263,22 +269,19 @@ JNIEXPORT void JNICALL
 }
 
 
+//mymod: edited func sig for nativemapper.
 JNIEXPORT jlong JNICALL
  Java_com_sun_glass_ui_monocle_X_XCreateBitmapFromData
- (JNIEnv *UNUSED(env), jclass UNUSED(xClass),
-        jlong display, jlong drawable, jobject buf,
-        jint UNUSED(width), jint UNUSED(height)) {
+ (JNIEnv *UNUSED(env), jclass UNUSED(xClass), jlong display, jlong drawable, jobject buf, jint UNUSED(width), jint UNUSED(height)) {
     void *data = (*env)->GetDirectBufferAddress(env, buf);
     return asJLong(XCreateBitmapFromData((Display *) asPtr(display),
                                 (Window) drawable, data, 1, 1));
 }
 
+//mymod: edited func sig for nativemapper.
 JNIEXPORT jlong JNICALL
  Java_com_sun_glass_ui_monocle_X_XCreatePixmapCursor
- (JNIEnv *UNUSED(env), jclass UNUSED(xClass),
-        jlong display, jlong source, jlong mask,
-        jlong UNUSED(fg), jlong UNUSED(bg),
-        jint UNUSED(x), jint UNUSED(y)) {
+ (JNIEnv *UNUSED(env), jclass UNUSED(xClass),jlong display, jlong source, jlong mask,jlong UNUSED(fg), jlong UNUSED(bg),jint UNUSED(x), jint UNUSED(y)) {
     XColor black;
     black.red = black.green = black.blue = 0;
     return asJLong(XCreatePixmapCursor ((Display *) asPtr(display),

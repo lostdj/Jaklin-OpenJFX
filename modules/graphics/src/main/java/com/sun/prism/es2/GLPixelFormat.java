@@ -32,7 +32,7 @@ import com.sun.glass.utils.NativeLibLoader;
 import com.sun.javafx.PlatformUtil;
 import com.sun.prism.impl.PrismSettings;
 
-class GLPixelFormat {
+public class GLPixelFormat {
     final private Attributes attributes;
     final private long nativeScreen;
     private long nativePFInfo;
@@ -64,20 +64,29 @@ class GLPixelFormat {
         this.nativePFInfo = nativePFInfo;
     }
 
-    long getNativePFInfo() {
+    public long getNativePFInfo() {
         return nativePFInfo;
     }
 
     static class Attributes {
         //  These definitions are used by both the Mac, Win and X11 subclasses
+        // mymod: added @Native annotation.
+        @java.lang.annotation.Native
         final static int RED_SIZE      = 0;
+        @java.lang.annotation.Native
         final static int GREEN_SIZE    = 1;
+        @java.lang.annotation.Native
         final static int BLUE_SIZE     = 2;
+        @java.lang.annotation.Native
         final static int ALPHA_SIZE    = 3;
+        @java.lang.annotation.Native
         final static int DEPTH_SIZE    = 4;
+        @java.lang.annotation.Native
         final static int DOUBLEBUFFER  = 5;
+        @java.lang.annotation.Native
         final static int ONSCREEN      = 6;
 
+        @java.lang.annotation.Native
         final static int NUM_ITEMS     = 7;
 
         private boolean onScreen;

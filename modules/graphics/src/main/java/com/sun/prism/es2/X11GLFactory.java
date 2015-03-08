@@ -25,7 +25,12 @@
 
 package com.sun.prism.es2;
 
+import com.sun.glass.ui.monocle.AcceleratedScreen;
+import com.sun.glass.ui.monocle.GLException;
+import com.sun.glass.ui.monocle.NativePlatformFactory;
 import com.sun.prism.es2.GLPixelFormat.Attributes;
+import com.sun.prism.impl.PrismSettings;
+
 import java.util.HashMap;
 
 class X11GLFactory extends GLFactory {
@@ -54,7 +59,7 @@ class X11GLFactory extends GLFactory {
         new GLGPUInfo("ati", "radeon x1400"),
         new GLGPUInfo("ati", "radeon x1450"),
         new GLGPUInfo("ati", "radeon x1500"),
-        new GLGPUInfo("ati", "radeon x1550"), 
+        new GLGPUInfo("ati", "radeon x1550"),
         new GLGPUInfo("ati", "radeon x1600"),
         new GLGPUInfo("ati", "radeon x1650"),
         new GLGPUInfo("ati", "radeon x1700"),
@@ -90,6 +95,8 @@ class X11GLFactory extends GLFactory {
         new GLGPUInfo("nvidia", "geforce 7900"),
         new GLGPUInfo("nvidia", "geforce 7950")
     };
+
+    private AcceleratedScreen accScreen = null;
 
     @Override
     GLGPUInfo[] getPreQualificationFilter() {
@@ -141,6 +148,45 @@ class X11GLFactory extends GLFactory {
         attrArr[GLPixelFormat.Attributes.DEPTH_SIZE] = attrs.getDepthSize();
         attrArr[GLPixelFormat.Attributes.DOUBLEBUFFER] = attrs.isDoubleBuffer() ? 1 : 0;
         attrArr[GLPixelFormat.Attributes.ONSCREEN] = attrs.isOnScreen() ? 1 : 0;
+
+        //mymod
+//        try {
+//            accScreen = NativePlatformFactory.getNativePlatform().getAcceleratedScreen(
+//
+//                    attrArr);
+//
+//            // If the native platform can't provide hardware accelerated rendering,
+//            // accScreen can be null
+//            if (accScreen == null) {
+//                return false;
+//            }
+//
+//            accScreen.enableRendering(true);
+//
+////            nativeCtxInfo = nPopulateNativeCtxInfo(accScreen.getGLHandle());
+//
+//            accScreen.enableRendering(false);
+//
+//            return true;
+////            if (nativeCtxInfo == 0) {
+////                // current pipe doesn't support this pixelFormat request
+////                return false;
+////            } else {
+////                gl2 = nGetIsGL2(nativeCtxInfo);
+////                return true;
+////            }
+//        } catch (GLException e) {
+//            if (PrismSettings.verbose) {
+//                e.printStackTrace();
+//            }
+//            return false;
+//        } catch (UnsatisfiedLinkError e) {
+//            if (PrismSettings.verbose) {
+//                e.printStackTrace();
+//            }
+//            return false;
+//        }
+        ///mymod
 
         // return the context info object create on the default screen
         nativeCtxInfo = nInitialize(attrArr);

@@ -25,7 +25,8 @@
 
 package netscape.javascript;
 
-import java.applet.Applet;
+//mymod
+//import java.applet.Applet;
 
 // FIXME: need URL on oracle.com for new LiveConnect spec
 
@@ -135,67 +136,68 @@ public abstract class JSObject {
      * @param applet The applet.
      * @return JSObject for the window containing the given applet.
      */
-    public static JSObject getWindow(Applet applet) throws JSException {
-
-        throw new JSException("Unexpected error: This method should not be used unless loaded from plugin.jar");
-
-/*
-        try
-        {
-            if (applet != null)
-            {
-
-                String obj = (String) applet.getParameter("MAYSCRIPT");
-
-                // Comment out MAYSCRIPT check because Internet Explorer doesn't support
-                // it.
-//              if (obj != null && (obj.equals("") || (new Boolean(obj).booleanValue() == true)))
-                {
-                    // MAYSCRIPT is enabled
-
-                    AppletContext c = applet.getAppletContext();
-
-                    // The applet context must implement the sun.plugin.javascript.JSContext
-                    // in order for us to get the handle that can be used when evaluating
-                    // JavaScript expression.
-                    //
-                    JSObject ret = null;
-
-                    if (c instanceof sun.plugin.javascript.JSContext)
-                    {
-                        JSContext j = (JSContext) c;
-                        ret = j.getJSObject();
-                    }
-
-                    if (ret != null) {
-                        return ret;
-                    }
-                }
-            } else {
-                // new code for CustomProgress to get the JSObject w/o applet
-                AppContext ac = ToolkitStore.get().getAppContext();
-                if (ac != null) {
-                    Plugin2Context context = (Plugin2Context)
-                            ac.get(sun.plugin2.applet.Plugin2Manager.APPCONTEXT_PLUGIN2CTX_KEY);
-                    if (context != null) {
-                        Applet2Host host = context.getHost();
-                        if (host != null && host instanceof JSContext) {
-                            JSContext jsc = (JSContext) host;
-                            JSObject ret = jsc.getOneWayJSObject();
-                            if (ret != null) {
-                               return ret;
-                            }
-                        }
-                    }
-                }
-            }
-        }
-        catch (Throwable e)
-        {
-            throw (JSException) new JSException(JSException.EXCEPTION_TYPE_ERROR, e).initCause(e);
-        }
-
-        throw new JSException();
-*/
-    }
+    //mymodAndroidFontFinder
+//    public static JSObject getWindow(Applet applet) throws JSException {
+//
+//        throw new JSException("Unexpected error: This method should not be used unless loaded from plugin.jar");
+//
+///*
+//        try
+//        {
+//            if (applet != null)
+//            {
+//
+//                String obj = (String) applet.getParameter("MAYSCRIPT");
+//
+//                // Comment out MAYSCRIPT check because Internet Explorer doesn't support
+//                // it.
+////              if (obj != null && (obj.equals("") || (new Boolean(obj).booleanValue() == true)))
+//                {
+//                    // MAYSCRIPT is enabled
+//
+//                    AppletContext c = applet.getAppletContext();
+//
+//                    // The applet context must implement the sun.plugin.javascript.JSContext
+//                    // in order for us to get the handle that can be used when evaluating
+//                    // JavaScript expression.
+//                    //
+//                    JSObject ret = null;
+//
+//                    if (c instanceof sun.plugin.javascript.JSContext)
+//                    {
+//                        JSContext j = (JSContext) c;
+//                        ret = j.getJSObject();
+//                    }
+//
+//                    if (ret != null) {
+//                        return ret;
+//                    }
+//                }
+//            } else {
+//                // new code for CustomProgress to get the JSObject w/o applet
+//                AppContext ac = ToolkitStore.get().getAppContext();
+//                if (ac != null) {
+//                    Plugin2Context context = (Plugin2Context)
+//                            ac.get(sun.plugin2.applet.Plugin2Manager.APPCONTEXT_PLUGIN2CTX_KEY);
+//                    if (context != null) {
+//                        Applet2Host host = context.getHost();
+//                        if (host != null && host instanceof JSContext) {
+//                            JSContext jsc = (JSContext) host;
+//                            JSObject ret = jsc.getOneWayJSObject();
+//                            if (ret != null) {
+//                               return ret;
+//                            }
+//                        }
+//                    }
+//                }
+//            }
+//        }
+//        catch (Throwable e)
+//        {
+//            throw (JSException) new JSException(JSException.EXCEPTION_TYPE_ERROR, e).initCause(e);
+//        }
+//
+//        throw new JSException();
+//*/
+//    }
 }

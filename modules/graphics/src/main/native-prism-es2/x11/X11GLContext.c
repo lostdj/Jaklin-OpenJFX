@@ -33,6 +33,58 @@
 #include "../PrismES2Defs.h"
 #include "com_sun_prism_es2_X11GLContext.h"
 
+//mymod
+// extern void glActiveTexture(GLenum texture);
+// extern void glAttachShader(GLuint program, GLuint shader);
+// extern void glBindAttribLocation(GLuint program, GLuint index, const GLchar *name);
+// extern void glBindFramebuffer(GLenum target, GLuint framebuffer);
+// extern void glBindRenderbuffer(GLenum target, GLuint renderbuffer);
+// extern GLenum glCheckFramebufferStatus(GLenum target);
+// extern GLuint glCreateProgram(void);
+// extern GLuint glCreateShader(GLenum type);
+// extern void glCompileShader(GLuint shader);
+// extern void glDeleteBuffers(GLsizei n, const GLuint *buffers);
+// extern void glDeleteFramebuffers(GLsizei n, const GLuint *framebuffers);
+// extern void glDeleteProgram(GLuint program);
+// extern void glDeleteRenderbuffers(GLsizei n, const GLuint *renderbuffers);
+// extern void glDeleteShader(GLuint shader);
+// extern void glDetachShader(GLuint program, GLuint shader);
+// extern void glDisableVertexAttribArray(GLuint index);
+// extern void glEnableVertexAttribArray(GLuint index);
+// extern void glFramebufferRenderbuffer(GLenum target, GLenum attachment, GLenum renderbuffertarget, GLuint renderbuffer);
+// extern void glFramebufferTexture2D(GLenum target, GLenum attachment, GLenum textarget, GLuint texture, GLint level);
+// extern void glGenFramebuffers(GLsizei n, GLuint *framebuffers);
+// extern void glGenRenderbuffers(GLsizei n, GLuint *renderbuffers);
+// extern void glGetProgramiv(GLuint program, GLenum pname, GLint *params);
+// extern void glGetShaderiv(GLuint shader, GLenum pname, GLint *params);
+// extern GLint glGetUniformLocation(GLuint program, const GLchar *name);
+// extern void glLinkProgram(GLuint program);
+// extern void glRenderbufferStorage(GLenum target, GLenum internalformat, GLsizei width, GLsizei height);
+// extern void glShaderSource(GLuint shader, GLsizei count, const GLchar* const *string, const GLint *length);
+// extern void glUniform1f(GLint location, GLfloat v0);
+// extern void glUniform2f(GLint location, GLfloat v0, GLfloat v1);
+// extern void glUniform3f(GLint location, GLfloat v0, GLfloat v1, GLfloat v2);
+// extern void glUniform4f(GLint location, GLfloat v0, GLfloat v1, GLfloat v2, GLfloat v3);
+// extern void glUniform4fv(GLint location, GLsizei count, const GLfloat *value);
+// extern void glUniform1i(GLint location, GLint v0);
+// extern void glUniform2i(GLint location, GLint v0, GLint v1);
+// extern void glUniform3i(GLint location, GLint v0, GLint v1, GLint v2);
+// extern void glUniform4i(GLint location, GLint v0, GLint v1, GLint v2, GLint v3);
+// extern void glUniform4iv(GLint location, GLsizei count, const GLint *value);
+// extern void glUniformMatrix4fv(GLint location, GLsizei count, GLboolean transpose, const GLfloat *value);
+// extern void glUseProgram(GLuint program);
+// extern void glValidateProgram(GLuint program);
+// extern void glVertexAttribPointer(GLuint index, GLint size, GLenum type, GLboolean normalized, GLsizei stride, const GLvoid *pointer);
+// extern void glGenBuffers(GLsizei n, GLuint *buffers);
+// extern void glBindBuffer(GLenum target, GLuint buffer);
+// extern void glBufferData(GLenum target, GLsizeiptr size, const GLvoid *data, GLenum usage);
+// extern void glBufferSubData(GLenum target, GLintptr offset, GLsizeiptr size, const GLvoid *data);
+// extern void glGetShaderInfoLog(GLuint shader, GLsizei bufSize, GLsizei *length, GLchar *infoLog);
+// extern void glGetProgramInfoLog(GLuint program, GLsizei bufSize, GLsizei *length, GLchar *infoLog);
+// extern void glTexImage2DMultisample(GLenum target, GLsizei samples, GLint internalformat, GLsizei width, GLsizei height, GLboolean fixedsamplelocations);
+// extern void glRenderbufferStorageMultisample(GLenum target, GLsizei samples, GLenum internalformat, GLsizei width, GLsizei height);
+// extern void glBlitFramebuffer(GLint srcX0, GLint srcY0, GLint srcX1, GLint srcY1, GLint dstX0, GLint dstY0, GLint dstX1, GLint dstY1, GLbitfield mask, GLenum filter);
+
 /*
  * Class:     com_sun_prism_es2_X11GLContext
  * Method:    nInitialize
@@ -168,6 +220,57 @@ JNIEXPORT jlong JNICALL Java_com_sun_prism_es2_X11GLContext_nInitialize
     ctxInfo->context = ctx;
 
     /* set function pointers */
+    //mymod
+    // ctxInfo->glActiveTexture = &glActiveTexture;
+    // ctxInfo->glAttachShader = &glAttachShader;
+    // ctxInfo->glBindAttribLocation = &glBindAttribLocation;
+    // ctxInfo->glBindFramebuffer = &glBindFramebuffer;
+    // ctxInfo->glBindRenderbuffer = &glBindRenderbuffer;
+    // ctxInfo->glCheckFramebufferStatus = &glCheckFramebufferStatus;
+    // ctxInfo->glCreateProgram = &glCreateProgram;
+    // ctxInfo->glCreateShader = &glCreateShader;
+    // ctxInfo->glCompileShader = &glCompileShader;
+    // ctxInfo->glDeleteBuffers = &glDeleteBuffers;
+    // ctxInfo->glDeleteFramebuffers = &glDeleteFramebuffers;
+    // ctxInfo->glDeleteProgram = &glDeleteProgram;
+    // ctxInfo->glDeleteRenderbuffers = &glDeleteRenderbuffers;
+    // ctxInfo->glDeleteShader = &glDeleteShader;
+    // ctxInfo->glDetachShader = &glDetachShader;
+    // ctxInfo->glDisableVertexAttribArray = &glDisableVertexAttribArray;
+    // ctxInfo->glEnableVertexAttribArray = &glEnableVertexAttribArray;
+    // ctxInfo->glFramebufferRenderbuffer = &glFramebufferRenderbuffer;
+    // ctxInfo->glFramebufferTexture2D = &glFramebufferTexture2D;
+    // ctxInfo->glGenFramebuffers = &glGenFramebuffers;
+    // ctxInfo->glGenRenderbuffers = &glGenRenderbuffers;
+    // ctxInfo->glGetProgramiv = &glGetProgramiv;
+    // ctxInfo->glGetShaderiv = &glGetShaderiv;
+    // ctxInfo->glGetUniformLocation = &glGetUniformLocation;
+    // ctxInfo->glLinkProgram = &glLinkProgram;
+    // ctxInfo->glRenderbufferStorage = &glRenderbufferStorage;
+    // ctxInfo->glShaderSource = &glShaderSource;
+    // ctxInfo->glUniform1f = &glUniform1f;
+    // ctxInfo->glUniform2f = &glUniform2f;
+    // ctxInfo->glUniform3f = &glUniform3f;
+    // ctxInfo->glUniform4f = &glUniform4f;
+    // ctxInfo->glUniform4fv = &glUniform4fv;
+    // ctxInfo->glUniform1i = &glUniform1i;
+    // ctxInfo->glUniform2i = &glUniform2i;
+    // ctxInfo->glUniform3i = &glUniform3i;
+    // ctxInfo->glUniform4i = &glUniform4i;
+    // ctxInfo->glUniform4iv = &glUniform4iv;
+    // ctxInfo->glUniformMatrix4fv = &glUniformMatrix4fv;
+    // ctxInfo->glUseProgram = &glUseProgram;
+    // ctxInfo->glValidateProgram = &glValidateProgram;
+    // ctxInfo->glVertexAttribPointer = &glVertexAttribPointer;
+    // ctxInfo->glGenBuffers = &glGenBuffers;
+    // ctxInfo->glBindBuffer = &glBindBuffer;
+    // ctxInfo->glBufferData = &glBufferData;
+    // ctxInfo->glBufferSubData = &glBufferSubData;
+    // ctxInfo->glGetShaderInfoLog = &glGetShaderInfoLog;
+    // ctxInfo->glGetProgramInfoLog = &glGetProgramInfoLog;
+    // ctxInfo->glTexImage2DMultisample = &glTexImage2DMultisample;
+    // ctxInfo->glRenderbufferStorageMultisample = &glRenderbufferStorageMultisample;
+    // ctxInfo->glBlitFramebuffer = &glBlitFramebuffer;
     ctxInfo->glActiveTexture = (PFNGLACTIVETEXTUREPROC)
             dlsym(RTLD_DEFAULT, "glActiveTexture");
     ctxInfo->glAttachShader = (PFNGLATTACHSHADERPROC)

@@ -4,6 +4,7 @@
     <exclude-output />
     <content url="file://$MODULE_DIR$/apps/samples/MandelbrotSet">
       <sourceFolder url="file://$MODULE_DIR$/apps/samples/MandelbrotSet/src" isTestSource="false" />
+      <excludeFolder url="file://$MODULE_DIR$/apps/samples/MandelbrotSet" />
       <excludeFolder url="file://$MODULE_DIR$/apps/samples/MandelbrotSet/nbproject" />
     </content>
     <orderEntry type="sourceFolder" forTests="false" />

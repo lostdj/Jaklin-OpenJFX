@@ -36,6 +36,12 @@ import com.sun.glass.ui.Size;
 import com.sun.glass.ui.Timer;
 import com.sun.glass.ui.View;
 import com.sun.glass.ui.Window;
+import com.sun.javafx.application.PlatformImpl;
+import com.sun.javafx.tk.Toolkit;
+import com.sun.javafx.tk.quantum.QuantumRenderer;
+import com.sun.javafx.tk.quantum.QuantumToolkit;
+import com.sun.prism.GraphicsPipeline;
+import com.sun.prism.impl.PrismSettings;
 
 import java.io.File;
 import java.nio.ByteBuffer;
@@ -47,7 +53,15 @@ import java.util.concurrent.CountDownLatch;
 
 final class GtkApplication extends Application implements InvokeLaterDispatcher.InvokeLaterSubmitter {
 
+    //mymod
+    static native int onload();
+    ///mymod
     static {
+        //mymod
+        if(onload() == -1)
+            throw new RuntimeException("Failed to init GtkApp.");
+        ///mymod
+
         AccessController.doPrivileged((PrivilegedAction<Void>) () -> {
             Application.loadNativeLibrary();
             return null;
@@ -70,7 +84,8 @@ final class GtkApplication extends Application implements InvokeLaterDispatcher.
 
         // Embedded in SWT, with shared event thread
         boolean isEventThread = AccessController
-                .doPrivileged((PrivilegedAction<Boolean>) () -> Boolean.getBoolean("javafx.embed.isEventThread"));
+                .doPrivileged((PrivilegedAction<Boolean>) () -> Boolean.getBoolean("javafx.embed.isEventThread"))
+                /*mymod*/|| QuantumToolkit.singleThreaded;
         if (!isEventThread) {
             invokeLaterDispatcher = new InvokeLaterDispatcher(this);
             invokeLaterDispatcher.start();
@@ -122,27 +137,31 @@ final class GtkApplication extends Application implements InvokeLaterDispatcher.
         // Embedded in SWT, with shared event thread
         final boolean isEventThread = AccessController
             .doPrivileged((PrivilegedAction<Boolean>) () -> Boolean.getBoolean("javafx.embed.isEventThread"));
-        
+
         if (isEventThread) {
             init();
             setEventThread(Thread.currentThread());
             launchable.run();
             return;
         }
-        
+
         final boolean noErrorTrap = AccessController
             .doPrivileged((PrivilegedAction<Boolean>) () -> Boolean.getBoolean("glass.noErrorTrap"));
-        
+
         final Thread toolkitThread =
-            AccessController.doPrivileged((PrivilegedAction<Thread>) () -> new Thread(() -> {
+            AccessController.doPrivileged((PrivilegedAction<Thread>) () -> new Thread(() ->
+            {
+                //mymod
+                cginit();
+                ///mymod
                 init();
                 _runLoop(launchable, noErrorTrap);
             }, "GtkNativeMainLoopThread"));
         setEventThread(toolkitThread);
         toolkitThread.start();
     }
-    
-    @Override 
+
+    @Override
     protected void finishTerminating() {
         final Thread toolkitThread = getEventThread();
         if (toolkitThread != null) {
@@ -159,9 +178,9 @@ final class GtkApplication extends Application implements InvokeLaterDispatcher.
     private static native boolean _isDisplayValid();
 
     private native void _terminateLoop();
-    
+
     private native void _init(long eventProc, boolean disableGrab);
-    
+
     private native void _runLoop(Runnable launchable, boolean noErrorTrap);
 
     @Override

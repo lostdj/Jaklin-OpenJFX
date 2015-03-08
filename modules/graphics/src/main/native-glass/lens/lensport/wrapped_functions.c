@@ -191,43 +191,46 @@ void * util_getLibGLEShandle() {
     return libglesv2;
 }
 
-int load_wrapped_gles_symbols() {
+//mymod: commented out, already defined in prism-es2/eglfb/wrapped_egl.c
+//mymod: uncommented back, required by Lens.
+//mymod: and commented back, trying out monocle+egl again.
+// int load_wrapped_gles_symbols() {
 
-    if (done_loading_symbols)  {
-        return 0;
-    }
-    done_loading_symbols = 1;
+//     if (done_loading_symbols)  {
+//         return 0;
+//     }
+//     done_loading_symbols = 1;
 
-    //Note that there is an order depenacy here - The PI wants GLES first.
-    // Other platfroms needs the RTLD_GLOBAL to resolve symbols correctly.
+//     //Note that there is an order depenacy here - The PI wants GLES first.
+//     // Other platfroms needs the RTLD_GLOBAL to resolve symbols correctly.
 
-    libglesv2 = dlopen("libGLESv2.so", RTLD_LAZY | RTLD_GLOBAL);
-    if (!libglesv2) {
-        fprintf(stderr, "Did not find libGLESv2.so %s\n", dlerror());
-        return 0;
-    }
+//     libglesv2 = dlopen("libGLESv2.so", RTLD_LAZY | RTLD_GLOBAL);
+//     if (!libglesv2) {
+//         fprintf(stderr, "Did not find libGLESv2.so %s\n", dlerror());
+//         return 0;
+//     }
 
-    libegl = dlopen("libEGL.so", RTLD_LAZY | RTLD_GLOBAL);
-    if (!libegl) {
-        fprintf(stderr, "Did not find libEGL.so %s\n", dlerror());
-        return 0;
-    }
+//     libegl = dlopen("libEGL.so", RTLD_LAZY | RTLD_GLOBAL);
+//     if (!libegl) {
+//         fprintf(stderr, "Did not find libEGL.so %s\n", dlerror());
+//         return 0;
+//     }
 
-    void *libbcm = dlopen("libbcm_host.so", RTLD_LAZY);
+//     void *libbcm = dlopen("libbcm_host.so", RTLD_LAZY);
 
-    int error = 0;
+//     int error = 0;
 
-    if (load_bcm_symbols() == 0) {
-        // useDispman
-    } else if (access("/dev/mxc_vpu", F_OK) == 0) {
-        useVivanteFB = 1;
-        error += load_vivante_symbols(libegl);
-    }
+//     if (load_bcm_symbols() == 0) {
+//         // useDispman
+//     } else if (access("/dev/mxc_vpu", F_OK) == 0) {
+//         useVivanteFB = 1;
+//         error += load_vivante_symbols(libegl);
+//     }
 
-    error += load_egl_symbols(libegl);
+//     error += load_egl_symbols(libegl);
 
-    return error;
-}
+//     return error;
+// }
 
 EGLNativeDisplayType util_getNativeDisplayType() {
     static EGLNativeDisplayType cachedNativeDisplayType;

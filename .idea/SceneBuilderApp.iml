@@ -4,6 +4,7 @@
     <exclude-output />
     <content url="file://$MODULE_DIR$/apps/scenebuilder/SceneBuilderApp">
       <sourceFolder url="file://$MODULE_DIR$/apps/scenebuilder/SceneBuilderApp/src" isTestSource="false" />
+      <excludeFolder url="file://$MODULE_DIR$/apps/scenebuilder/SceneBuilderApp" />
     </content>
     <orderEntry type="sourceFolder" forTests="false" />
     <orderEntry type="inheritedJdk" />

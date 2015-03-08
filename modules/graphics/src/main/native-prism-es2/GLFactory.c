@@ -84,6 +84,9 @@ void extractVersionInfo(char *versionStr, int *numbers)
         return;
     }
 
+    //mymod
+    doifdef(_cph_os_web, versionStr += 6);
+
     numbers[0] = numbers[1] = -1;
 #if WIN32
     majorNumStr = strtok_s(versionStr, (char *)".", &next_token);
@@ -96,6 +99,10 @@ void extractVersionInfo(char *versionStr, int *numbers)
         numbers[0] = atoi(majorNumStr);
     if (minorNumStr != NULL)
         numbers[1] = atoi(minorNumStr);
+
+    //mymod
+    doifdef(_cph_os_web, if(numbers[0] >= 1) numbers[0] = 2);
+    doifdef(_cph_os_web, numbers[1] = 1);
 }
 
 /*

@@ -4,6 +4,7 @@
     <exclude-output />
     <content url="file://$MODULE_DIR$/apps/scenebuilder/samples/IssueTrackingBiDi">
       <sourceFolder url="file://$MODULE_DIR$/apps/scenebuilder/samples/IssueTrackingBiDi/src" isTestSource="false" />
+      <excludeFolder url="file://$MODULE_DIR$/apps/scenebuilder/samples/IssueTrackingBiDi" />
     </content>
     <orderEntry type="sourceFolder" forTests="false" />
     <orderEntry type="module" module-name="rt" />

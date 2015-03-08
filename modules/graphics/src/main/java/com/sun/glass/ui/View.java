@@ -27,6 +27,7 @@ package com.sun.glass.ui;
 import com.sun.glass.events.MouseEvent;
 import com.sun.glass.events.ViewEvent;
 
+import java.lang.annotation.Native;
 import java.lang.ref.WeakReference;
 import java.security.AccessController;
 import java.security.PrivilegedAction;
@@ -34,13 +35,21 @@ import java.util.Map;
 
 public abstract class View {
 
+    //mymod
+    @Native
     public final static int GESTURE_NO_VALUE = Integer.MAX_VALUE;
+    @Native
     public final static double GESTURE_NO_DOUBLE_VALUE = Double.NaN;
 
+    @Native
     public final static byte IME_ATTR_INPUT                 = 0x00;
+    @Native
     public final static byte IME_ATTR_TARGET_CONVERTED      = 0x01;
+    @Native
     public final static byte IME_ATTR_CONVERTED             = 0x02;
+    @Native
     public final static byte IME_ATTR_TARGET_NOTCONVERTED   = 0x03;
+    @Native
     public final static byte IME_ATTR_INPUT_ERROR           = 0x04;
 
     final static boolean accessible = AccessController.doPrivileged((PrivilegedAction<Boolean>) () -> {
@@ -277,7 +286,7 @@ public abstract class View {
          *
          * For description of isDirect argument see #handleBeginTouchEvent
          * method.
-         * 
+         *
          * For description of isInertia argument see #handleScrollGestureEvent
          * method.
          *
@@ -319,7 +328,7 @@ public abstract class View {
          *
          * For description of isDirect argument see #handleBeginTouchEvent
          * method.
-         * 
+         *
          * For description of isInertia argument see #handleScrollGestureEvent
          * method.
          *
@@ -344,15 +353,15 @@ public abstract class View {
          *
          * For description of isDirect argument see #handleBeginTouchEvent
          * method.
-         * 
-         * For description of isInertia and touchCount arguments 
+         *
+         * For description of isInertia and touchCount arguments
          * see #handleScrollGestureEvent method.
          *
          * For description of type, x,y, xAbs and yAbs arguments
          * see #handleBeginTouchEvent method.
-         * 
-         * @param dir gesture direction. 
-         *        One of constants defined in com.sun.glass.events.SwipeGesture 
+         *
+         * @param dir gesture direction.
+         *        One of constants defined in com.sun.glass.events.SwipeGesture
          *        class.
          */
         public void handleSwipeGestureEvent(View view, long time, int type,
@@ -402,12 +411,19 @@ public abstract class View {
     private boolean inFullscreen = false;
 
     static final public class Capability {
+        //mymod
         // we need these for native code
+        @Native
         static final public int k3dKeyValue                     = 0;
+        @Native
         static final public int kSyncKeyValue                   = 1;
+        @Native
         static final public int k3dProjectionKeyValue           = 2;
+        @Native
         static final public int k3dProjectionAngleKeyValue      = 3;
+        @Native
         static final public int k3dDepthKeyValue                = 4;
+        @Native
         static final public int kHiDPIAwareKeyValue             = 5;
 
         static final public Object k3dKey                       = Integer.valueOf(k3dKeyValue); // value must be Boolean
@@ -450,13 +466,13 @@ public abstract class View {
         checkNotClosed();
         return _getNativeView(this.ptr);
     }
-    
+
     /** Only used on Mac when run inside a plugin */
     public int getNativeRemoteLayerId(String serverName) {
         Application.checkEventThread();
         throw new RuntimeException("This operation is not supported on this platform");
     }
-    
+
     public Window getWindow() {
         Application.checkEventThread();
         return this.window;
@@ -724,7 +740,7 @@ public abstract class View {
         checkNotClosed();
         _scheduleRepaint(this.ptr);
     }
-    
+
     protected abstract void _begin(long ptr);
     /** prepares to painting by locking native surface
      *
@@ -806,15 +822,15 @@ public abstract class View {
         }
 
         _scheduleRepaint(this.ptr);
-        
+
         return this.inFullscreen;
     }
 
 
     //-------- DELEGATE NOTIFICATIONS --------//
-    
+
     protected void notifyView(int type) {
-        //System.err.println("    notifyView: "+ViewEvent.getTypeString(type)+" on thread"+Thread.currentThread());
+//        System.err.println("    notifyView: "+ViewEvent.getTypeString(type)+" on thread"+Thread.currentThread());
         if (type == ViewEvent.REPAINT) {
             if (isValid) {
                 handleViewEvent(System.nanoTime(), type);

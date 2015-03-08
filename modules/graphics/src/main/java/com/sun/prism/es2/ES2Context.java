@@ -46,7 +46,7 @@ import com.sun.prism.impl.ps.BaseShaderContext;
 import com.sun.prism.ps.Shader;
 import com.sun.prism.ps.ShaderFactory;
 
-class ES2Context extends BaseShaderContext {
+public class ES2Context extends BaseShaderContext {
 
     // Temporary variables
     private static GeneralTransform3D scratchTx = new GeneralTransform3D();
@@ -60,7 +60,7 @@ class ES2Context extends BaseShaderContext {
 
     private RenderTarget currentTarget;
     private final GLContext glContext;
-    private final GLDrawable dummyGLDrawable;
+    private /*mymod*//*final*/ GLDrawable dummyGLDrawable;
     private final GLPixelFormat pixelFormat;
     private State state;
     private int quadIndices;
@@ -97,7 +97,7 @@ class ES2Context extends BaseShaderContext {
         setIndexBuffer(quadIndices);
         state = new State();
     }
-    
+
     final void clearContext() {
         if (currentDrawable != null) {
             currentDrawable.swapBuffers(glContext);
@@ -126,6 +126,11 @@ class ES2Context extends BaseShaderContext {
         if (drawable == null) {
             drawable = dummyGLDrawable;
         }
+
+        //mymod
+        if(drawable != dummyGLDrawable)
+            dummyGLDrawable = drawable;
+
         if (drawable != currentDrawable) {
             glContext.makeCurrent(drawable);
             // Need to restore FBO to on screen framebuffer

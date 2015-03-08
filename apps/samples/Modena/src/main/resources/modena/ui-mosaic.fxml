@@ -39,7 +39,8 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
 <?import javafx.scene.paint.*?>
-<?import javafx.scene.web.*?>
+<!--mymod-->
+<!--<?import javafx.scene.web.*?>-->
 
 <AnchorPane id="AnchorPane" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="935.0" prefWidth="927.0" xmlns:fx="http://javafx.com/fxml">
   <children>
@@ -247,7 +248,8 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
         </TitledPane>
         <TitledPane id="x1" animated="true" expanded="false" text="HTML Editor">
           <content>
-            <HTMLEditor htmlText="&lt;html&gt;&lt;head&gt;&lt;/head&gt;&lt;body contenteditable=&quot;true&quot;&gt;&lt;/body&gt;&lt;/html&gt;" minWidth="100.0" prefHeight="200.0" prefWidth="-1.0" />
+            <!--mymod-->
+            <!--<HTMLEditor htmlText="&lt;html&gt;&lt;head&gt;&lt;/head&gt;&lt;body contenteditable=&quot;true&quot;&gt;&lt;/body&gt;&lt;/html&gt;" minWidth="100.0" prefHeight="200.0" prefWidth="-1.0" />-->
           </content>
         </TitledPane>
         <TitledPane id="x1" animated="true" expanded="false" text="Empty">

@@ -25,10 +25,16 @@
 package com.sun.glass.ui;
 
 import com.sun.glass.events.KeyEvent;
-import com.sun.glass.ui.CommonDialogs.ExtensionFilter; 
-import com.sun.glass.ui.CommonDialogs.FileChooserResult; 
+import com.sun.glass.ui.CommonDialogs.ExtensionFilter;
+import com.sun.glass.ui.CommonDialogs.FileChooserResult;
+import com.sun.javafx.tk.Toolkit;
+import com.sun.javafx.tk.quantum.QuantumRenderer;
+import com.sun.javafx.tk.quantum.QuantumToolkit;
+import com.sun.prism.GraphicsPipeline;
+import com.sun.prism.impl.PrismSettings;
 
 import java.io.File;
+import java.lang.annotation.Native;
 import java.nio.ByteBuffer;
 import java.nio.IntBuffer;
 import java.security.AccessController;
@@ -40,6 +46,24 @@ import java.util.Map;
 import java.util.LinkedList;
 
 public abstract class Application {
+
+    //mymod
+    @Native
+    public static final int MYFX__DUMMY = 0;
+
+    //mymod
+    protected void cginit()
+    {
+        if(QuantumToolkit.singleThreaded) {
+            QuantumRenderer.myInit(QuantumRenderer.getInstance());
+            ((QuantumToolkit) Toolkit.getToolkit()).pipeline = GraphicsPipeline.getPipeline();
+
+            if (PrismSettings.verbose) {
+                System.err.println(" vsync: " + PrismSettings.isVsyncEnabled +
+                        " vpipe: " + ((QuantumToolkit) Toolkit.getToolkit()).pipeline.isVsyncSupported());
+            }
+        }
+    }
 
     private final static String DEFAULT_NAME = "java";
     protected String name = DEFAULT_NAME;
@@ -103,7 +127,7 @@ public abstract class Application {
                     System.getProperty("glass.disableThreadChecks", "false");
             return "true".equalsIgnoreCase(str);
         });
-    
+
     // May be called on any thread.
     protected static synchronized void loadNativeLibrary(final String libname) {
         // load the native library of the specified libname.
@@ -116,7 +140,7 @@ public abstract class Application {
 
     // May be called on any thread.
     protected static synchronized void loadNativeLibrary() {
-        // use the "platform default" name of "glass" 
+        // use the "platform default" name of "glass"
         loadNativeLibrary("glass");
     }
 
@@ -137,7 +161,7 @@ public abstract class Application {
 
     protected Application() {
     }
-    
+
     // May be called on any thread.
     public static void run(final Runnable launchable) {
         if (application != null) {
@@ -159,6 +183,13 @@ public abstract class Application {
         }
     }
 
+
+    //mymod
+    public void tick()
+    {
+        ;
+    }
+
     // runLoop never exits until app terminates
     protected abstract void runLoop(Runnable launchable);
 
@@ -168,22 +199,22 @@ public abstract class Application {
         application = null;
         // The eventThread is null at this point, no need to check it
     }
-    
+
     /**
      * Gets the name for the application.  The application name may
      * be used to identify the application in the user interface or
      * as part of the platform specific path used to store application
      * data.
-     * 
+     *
      * This is a hint and may not be used on some platforms.
-     * 
+     *
      * @return the application name
      */
     public String getName() {
         checkEventThread();
         return name;
     }
-    
+
     /**
      * Sets the name for the application.  The application name may
      * be used to identify the application in the user interface or
@@ -193,7 +224,7 @@ public abstract class Application {
      * The name could be set only once. All subsequent calls are ignored.
      *
      * This is a hint and may not be used on some platforms.
-     * 
+     *
      * @param name the new application name
      */
     public void setName(String name) {
@@ -207,10 +238,10 @@ public abstract class Application {
      * Gets a platform specific path that can be used to store
      * application data.  The application name typically appears
      * as part of the path.
-     * 
+     *
      * On some platforms, the path may not yet exist and the caller
      * will need to create it.
-     * 
+     *
      * @return the platform specific path for the application data
      */
     public String getDataDirectory() {
@@ -225,21 +256,21 @@ public abstract class Application {
             handler.handleWillFinishLaunchingAction(this, System.nanoTime());
         }
     }
-    
+
     private void notifyDidFinishLaunching() {
         EventHandler handler = getEventHandler();
         if (handler != null) {
             handler.handleDidFinishLaunchingAction(this, System.nanoTime());
         }
     }
-    
+
     private void notifyWillBecomeActive() {
         EventHandler handler = getEventHandler();
         if (handler != null) {
             handler.handleWillBecomeActiveAction(this, System.nanoTime());
         }
     }
-    
+
     private void notifyDidBecomeActive() {
         this.initialActiveEventReceived = true;
         EventHandler handler = getEventHandler();
@@ -247,14 +278,14 @@ public abstract class Application {
             handler.handleDidBecomeActiveAction(this, System.nanoTime());
         }
     }
-    
+
     private void notifyWillResignActive() {
         EventHandler handler = getEventHandler();
         if (handler != null) {
             handler.handleWillResignActiveAction(this, System.nanoTime());
         }
     }
-    
+
     private boolean notifyThemeChanged(String themeName) {
         EventHandler handler = getEventHandler();
         if (handler != null) {
@@ -269,42 +300,42 @@ public abstract class Application {
             handler.handleDidResignActiveAction(this, System.nanoTime());
         }
     }
-    
+
     private void notifyDidReceiveMemoryWarning() {
         EventHandler handler = getEventHandler();
         if (handler != null) {
             handler.handleDidReceiveMemoryWarning(this, System.nanoTime());
         }
     }
-    
+
     private void notifyWillHide() {
         EventHandler handler = getEventHandler();
         if (handler != null) {
             handler.handleWillHideAction(this, System.nanoTime());
         }
     }
-    
+
     private void notifyDidHide() {
         EventHandler handler = getEventHandler();
         if (handler != null) {
             handler.handleDidHideAction(this, System.nanoTime());
         }
     }
-    
+
     private void notifyWillUnhide() {
         EventHandler handler = getEventHandler();
         if (handler != null) {
             handler.handleWillUnhideAction(this, System.nanoTime());
         }
     }
-    
+
     private void notifyDidUnhide() {
         EventHandler handler = getEventHandler();
         if (handler != null) {
             handler.handleDidUnhideAction(this, System.nanoTime());
         }
     }
-    
+
     // notificiation when user drag and drops files onto app icon
     private void notifyOpenFiles(String files[]) {
         if ((this.initialActiveEventReceived == false) && (this.initialOpenedFiles == null)) {
@@ -400,7 +431,7 @@ public abstract class Application {
     }
 
     // May be called on any thread
-    static public Application GetApplication() {
+    public static Application GetApplication() {
         return Application.application;
     }
 
@@ -424,7 +455,7 @@ public abstract class Application {
     /**
      * Verifies that the current thread is the event thread, and throws
      * an exception if this is not so.
-     * 
+     *
      * The check can be disabled by setting the "glass.disableThreadChecks"
      * system property. It is preferred, however, to fix the application code
      * instead.

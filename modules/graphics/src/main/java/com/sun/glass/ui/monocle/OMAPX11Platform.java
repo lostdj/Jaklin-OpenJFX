@@ -29,7 +29,7 @@ class OMAPX11Platform extends OMAPPlatform {
 
     @Override
     protected NativeScreen createScreen() {
-        return new X11Screen(false);
+        return new X11Screen(false, 0);
     }
 
     @Override

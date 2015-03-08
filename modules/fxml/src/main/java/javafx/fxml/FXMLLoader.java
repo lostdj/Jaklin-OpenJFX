@@ -63,12 +63,13 @@ import javafx.util.Builder;
 import javafx.util.BuilderFactory;
 import javafx.util.Callback;
 
-import javax.script.Bindings;
-import javax.script.ScriptContext;
-import javax.script.ScriptEngine;
-import javax.script.ScriptEngineManager;
-import javax.script.ScriptException;
-import javax.script.SimpleBindings;
+// mymod: commented out.
+//import javax.script.Bindings;
+//import javax.script.ScriptContext;
+//import javax.script.ScriptEngine;
+//import javax.script.ScriptEngineManager;
+//import javax.script.ScriptException;
+//import javax.script.SimpleBindings;
 import javax.xml.stream.XMLInputFactory;
 import javax.xml.stream.XMLStreamConstants;
 import javax.xml.stream.XMLStreamException;
@@ -349,7 +350,8 @@ public class FXMLLoader {
                             + "\" does not exist" + " or is read-only.");
                     }
 
-                    if (List.class.isAssignableFrom(type)
+//                    System.out.println("===> " + type.getCanonicalName());
+                    if (/*mymod*/!type.isPrimitive() &&  List.class.isAssignableFrom(type)
                         && valueAdapter.isReadOnly(propertyName)) {
                         populateListFromString(valueAdapter, propertyName, aValue);
                         processed = true;
@@ -393,7 +395,9 @@ public class FXMLLoader {
                     return aValue;
                 } else {
                         if (aValue.charAt(0) == '/') {
-                            final URL res = getClassLoader().getResource(aValue.substring(1));
+                            //mymod3
+//                            final URL res = getClassLoader().getResource(aValue.substring(1));
+                            final URL res = FXMLLoader.class.getResource(aValue.substring(1));
                             if (res == null) {
                                 throw constructLoadException("Invalid resource: " + aValue + " not found on the classpath");
                             }
@@ -606,12 +610,13 @@ public class FXMLLoader {
                         }
 
                         if (eventHandler == null) {
-                            if (handlerName.length() == 0 || scriptEngine == null) {
+                            if (handlerName.length() == 0 /* mymod: commented out. *//*|| scriptEngine == null*/) {
                                 throw constructLoadException("Error resolving " + attribute.name + "='" + attribute.value
                                         + "', either the event handler is not in the Namespace or there is an error in the script.");
                             }
 
-                            eventHandler = new ScriptEventHandler(handlerName, scriptEngine);
+                            // mymod: commented out.
+//                            eventHandler = new ScriptEventHandler(handlerName, scriptEngine);
                         }
 
                         // Add the handler
@@ -917,7 +922,9 @@ public class FXMLLoader {
                     if (!staticLoad) {
                         Class<?> type;
                         try {
+                            //mymod2
                             type = getClassLoader().loadClass(value);
+//                            type = Class.forName(value.replace("/", "."));
                         } catch (ClassNotFoundException exception) {
                             throw constructLoadException(exception);
                         }
@@ -1113,7 +1120,9 @@ public class FXMLLoader {
             URL location;
             final ClassLoader cl = getClassLoader();
             if (source.charAt(0) == '/') {
-                location = cl.getResource(source.substring(1));
+                //mymod3
+//                location = cl.getResource(source.substring(1));
+                location = FXMLLoader.class.getResource(source.substring(1));
                 if (location == null) {
                     throw constructLoadException("Cannot resolve path: " + source);
                 }
@@ -1395,8 +1404,12 @@ public class FXMLLoader {
         public void add(Object element) throws LoadException {
             // Coerce the element to the list item type
             if (parent.isTyped()) {
-                Type listType = parent.getValueAdapter().getGenericType(name);
-                element = BeanAdapter.coerce(element, BeanAdapter.getListItemType(listType));
+                //mymod
+//                try {
+                    Type listType = parent.getValueAdapter().getGenericType(name);
+                    element = BeanAdapter.coerce(element, BeanAdapter.getListItemType(listType));
+//                }
+//                catch (Throwable ignored) {ignored.printStackTrace();}
             }
 
             // Add the item to the list
@@ -1446,7 +1459,7 @@ public class FXMLLoader {
         public void processCharacters() throws IOException {
             String text = xmlStreamReader.getText();
             text = extraneousWhitespacePattern.matcher(text).replaceAll(" ").trim();
-            
+
             if (readOnly) {
                 if (isCollection()) {
                     add(text);
@@ -1491,126 +1504,127 @@ public class FXMLLoader {
     }
 
     // Element representing a script block
-    private class ScriptElement extends Element {
-        public String source = null;
-        public Charset charset = FXMLLoader.this.charset;
-
-        @Override
-        public boolean isCollection() {
-            return false;
-        }
-
-        @Override
-        public void processStartElement() throws IOException {
-            super.processStartElement();
-
-            if (source != null && !staticLoad) {
-                int i = source.lastIndexOf(".");
-                if (i == -1) {
-                    throw constructLoadException("Cannot determine type of script \""
-                        + source + "\".");
-                }
-
-                String extension = source.substring(i + 1);
-                ScriptEngine engine;
-                final ClassLoader cl = getClassLoader();
-                if (scriptEngine != null && scriptEngine.getFactory().getExtensions().contains(extension)) {
-                    // If we have a page language and it's engine supports the extension, use the same engine
-                    engine = scriptEngine;
-                } else {
-                    ClassLoader oldLoader = Thread.currentThread().getContextClassLoader();
-                    try {
-                        Thread.currentThread().setContextClassLoader(cl);
-                        ScriptEngineManager scriptEngineManager = getScriptEngineManager();
-                        engine = scriptEngineManager.getEngineByExtension(extension);
-                    } finally {
-                        Thread.currentThread().setContextClassLoader(oldLoader);
-                    }
-                }
-
-                if (engine == null) {
-                    throw constructLoadException("Unable to locate scripting engine for"
-                        + " extension " + extension + ".");
-                }
-
-                try {
-                    URL location;
-                    if (source.charAt(0) == '/') {
-                        location = cl.getResource(source.substring(1));
-                    } else {
-                        if (FXMLLoader.this.location == null) {
-                            throw constructLoadException("Base location is undefined.");
-                        }
-
-                        location = new URL(FXMLLoader.this.location, source);
-                    }
-
-                    InputStreamReader scriptReader = null;
-                    try {
-                        scriptReader = new InputStreamReader(location.openStream(), charset);
-                        engine.eval(scriptReader);
-                    } catch(ScriptException exception) {
-                        exception.printStackTrace();
-                    } finally {
-                        if (scriptReader != null) {
-                            scriptReader.close();
-                        }
-                    }
-                } catch (IOException exception) {
-                    throw constructLoadException(exception);
-                }
-            }
-        }
-
-        @Override
-        public void processEndElement() throws IOException {
-            super.processEndElement();
-
-            if (value != null && !staticLoad) {
-                // Evaluate the script
-                try {
-                    scriptEngine.eval((String)value);
-                } catch (ScriptException exception) {
-                    System.err.println(exception.getMessage());
-                }
-            }
-        }
-
-        @Override
-        public void processCharacters() throws LoadException {
-            if (source != null) {
-                throw constructLoadException("Script source already specified.");
-            }
-
-            if (scriptEngine == null && !staticLoad) {
-                throw constructLoadException("Page language not specified.");
-            }
-
-            updateValue(xmlStreamReader.getText());
-        }
-
-        @Override
-        public void processAttribute(String prefix, String localName, String value)
-            throws IOException {
-            if (prefix == null
-                && localName.equals(SCRIPT_SOURCE_ATTRIBUTE)) {
-                if (loadListener != null) {
-                    loadListener.readInternalAttribute(localName, value);
-                }
-
-                source = value;
-            } else if (localName.equals(SCRIPT_CHARSET_ATTRIBUTE)) {
-                if (loadListener != null) {
-                    loadListener.readInternalAttribute(localName, value);
-                }
-
-                charset = Charset.forName(value);
-            } else {
-                throw constructLoadException(prefix == null ? localName : prefix + ":" + localName
-                    + " is not a valid attribute.");
-            }
-        }
-    }
+    // mymod: commented out.
+//    private class ScriptElement extends Element {
+//        public String source = null;
+//        public Charset charset = FXMLLoader.this.charset;
+//
+//        @Override
+//        public boolean isCollection() {
+//            return false;
+//        }
+//
+//        @Override
+//        public void processStartElement() throws IOException {
+//            super.processStartElement();
+//
+//            if (source != null && !staticLoad) {
+//                int i = source.lastIndexOf(".");
+//                if (i == -1) {
+//                    throw constructLoadException("Cannot determine type of script \""
+//                        + source + "\".");
+//                }
+//
+//                String extension = source.substring(i + 1);
+//                ScriptEngine engine;
+//                final ClassLoader cl = getClassLoader();
+//                if (scriptEngine != null && scriptEngine.getFactory().getExtensions().contains(extension)) {
+//                    // If we have a page language and it's engine supports the extension, use the same engine
+//                    engine = scriptEngine;
+//                } else {
+//                    ClassLoader oldLoader = Thread.currentThread().getContextClassLoader();
+//                    try {
+//                        Thread.currentThread().setContextClassLoader(cl);
+//                        ScriptEngineManager scriptEngineManager = getScriptEngineManager();
+//                        engine = scriptEngineManager.getEngineByExtension(extension);
+//                    } finally {
+//                        Thread.currentThread().setContextClassLoader(oldLoader);
+//                    }
+//                }
+//
+//                if (engine == null) {
+//                    throw constructLoadException("Unable to locate scripting engine for"
+//                        + " extension " + extension + ".");
+//                }
+//
+//                try {
+//                    URL location;
+//                    if (source.charAt(0) == '/') {
+//                        location = cl.getResource(source.substring(1));
+//                    } else {
+//                        if (FXMLLoader.this.location == null) {
+//                            throw constructLoadException("Base location is undefined.");
+//                        }
+//
+//                        location = new URL(FXMLLoader.this.location, source);
+//                    }
+//
+//                    InputStreamReader scriptReader = null;
+//                    try {
+//                        scriptReader = new InputStreamReader(location.openStream(), charset);
+//                        engine.eval(scriptReader);
+//                    } catch(ScriptException exception) {
+//                        exception.printStackTrace();
+//                    } finally {
+//                        if (scriptReader != null) {
+//                            scriptReader.close();
+//                        }
+//                    }
+//                } catch (IOException exception) {
+//                    throw constructLoadException(exception);
+//                }
+//            }
+//        }
+//
+//        @Override
+//        public void processEndElement() throws IOException {
+//            super.processEndElement();
+//
+//            if (value != null && !staticLoad) {
+//                // Evaluate the script
+//                try {
+//                    scriptEngine.eval((String)value);
+//                } catch (ScriptException exception) {
+//                    System.err.println(exception.getMessage());
+//                }
+//            }
+//        }
+//
+//        @Override
+//        public void processCharacters() throws LoadException {
+//            if (source != null) {
+//                throw constructLoadException("Script source already specified.");
+//            }
+//
+//            if (scriptEngine == null && !staticLoad) {
+//                throw constructLoadException("Page language not specified.");
+//            }
+//
+//            updateValue(xmlStreamReader.getText());
+//        }
+//
+//        @Override
+//        public void processAttribute(String prefix, String localName, String value)
+//            throws IOException {
+//            if (prefix == null
+//                && localName.equals(SCRIPT_SOURCE_ATTRIBUTE)) {
+//                if (loadListener != null) {
+//                    loadListener.readInternalAttribute(localName, value);
+//                }
+//
+//                source = value;
+//            } else if (localName.equals(SCRIPT_CHARSET_ATTRIBUTE)) {
+//                if (loadListener != null) {
+//                    loadListener.readInternalAttribute(localName, value);
+//                }
+//
+//                charset = Charset.forName(value);
+//            } else {
+//                throw constructLoadException(prefix == null ? localName : prefix + ":" + localName
+//                    + " is not a valid attribute.");
+//            }
+//        }
+//    }
 
     // Element representing a define block
     private class DefineElement extends Element {
@@ -1658,36 +1672,37 @@ public class FXMLLoader {
         }
     }
 
+    // mymod: commented out.
     // Event handler implemented in script code
-    private static class ScriptEventHandler implements EventHandler<Event> {
-        public final String script;
-        public final ScriptEngine scriptEngine;
-
-        public ScriptEventHandler(String script, ScriptEngine scriptEngine) {
-            this.script = script;
-            this.scriptEngine = scriptEngine;
-        }
-
-        @Override
-        public void handle(Event event) {
-            // Don't pollute the page namespace with values defined in the script
-            Bindings engineBindings = scriptEngine.getBindings(ScriptContext.ENGINE_SCOPE);
-            Bindings localBindings = scriptEngine.createBindings();
-            localBindings.put(EVENT_KEY, event);
-            localBindings.putAll(engineBindings);
-            scriptEngine.setBindings(localBindings, ScriptContext.ENGINE_SCOPE);
-
-            // Execute the script
-            try {
-                scriptEngine.eval(script);
-            } catch (ScriptException exception){
-                throw new RuntimeException(exception);
-            }
-
-            // Restore the original bindings
-            scriptEngine.setBindings(engineBindings, ScriptContext.ENGINE_SCOPE);
-        }
-    }
+//    private static class ScriptEventHandler implements EventHandler<Event> {
+//        public final String script;
+//        public final ScriptEngine scriptEngine;
+//
+//        public ScriptEventHandler(String script, ScriptEngine scriptEngine) {
+//            this.script = script;
+//            this.scriptEngine = scriptEngine;
+//        }
+//
+//        @Override
+//        public void handle(Event event) {
+//            // Don't pollute the page namespace with values defined in the script
+//            Bindings engineBindings = scriptEngine.getBindings(ScriptContext.ENGINE_SCOPE);
+//            Bindings localBindings = scriptEngine.createBindings();
+//            localBindings.put(EVENT_KEY, event);
+//            localBindings.putAll(engineBindings);
+//            scriptEngine.setBindings(localBindings, ScriptContext.ENGINE_SCOPE);
+//
+//            // Execute the script
+//            try {
+//                scriptEngine.eval(script);
+//            } catch (ScriptException exception){
+//                throw new RuntimeException(exception);
+//            }
+//
+//            // Restore the original bindings
+//            scriptEngine.setBindings(engineBindings, ScriptContext.ENGINE_SCOPE);
+//        }
+//    }
 
     // Observable list change listener
     private static class ObservableListChangeAdapter implements ListChangeListener {
@@ -1801,12 +1816,14 @@ public class FXMLLoader {
     private XMLStreamReader xmlStreamReader = null;
     private Element current = null;
 
-    private ScriptEngine scriptEngine = null;
+    // mymod: commented out.
+//    private ScriptEngine scriptEngine = null;
 
     private List<String> packages = new LinkedList<String>();
     private Map<String, Class<?>> classes = new HashMap<String, Class<?>>();
 
-    private ScriptEngineManager scriptEngineManager = null;
+    // mymod: commented out.
+//    private ScriptEngineManager scriptEngineManager = null;
 
     private static ClassLoader defaultClassLoader = null;
 
@@ -2473,7 +2490,8 @@ public class FXMLLoader {
             namespace.put(RESOURCES_KEY, resources);
 
             // Clear the script engine
-            scriptEngine = null;
+            // mymod: commented out.
+//            scriptEngine = null;
 
             // Create the parser
             try {
@@ -2671,20 +2689,21 @@ public class FXMLLoader {
     }
 
     private void processLanguage() throws LoadException {
-        if (scriptEngine != null) {
-            throw constructLoadException("Page language already set.");
-        }
-
-        String language = xmlStreamReader.getPIData();
-
-        if (loadListener != null) {
-            loadListener.readLanguageProcessingInstruction(language);
-        }
-
-        if (!staticLoad) {
-            ScriptEngineManager scriptEngineManager = getScriptEngineManager();
-            scriptEngine = scriptEngineManager.getEngineByName(language);
-        }
+        // mymod: commented out.
+//        if (scriptEngine != null) {
+//            throw constructLoadException("Page language already set.");
+//        }
+//
+//        String language = xmlStreamReader.getPIData();
+//
+//        if (loadListener != null) {
+//            loadListener.readLanguageProcessingInstruction(language);
+//        }
+//
+//        if (!staticLoad) {
+//            ScriptEngineManager scriptEngineManager = getScriptEngineManager();
+//            scriptEngine = scriptEngineManager.getEngineByName(language);
+//        }
     }
 
     private void processImport() throws LoadException {
@@ -2807,13 +2826,16 @@ public class FXMLLoader {
                 }
 
                 current = new RootElement();
-            } else if (localName.equals(SCRIPT_TAG)) {
+            }
+            // mymod: commented out.
+            /*else if (localName.equals(SCRIPT_TAG)) {
                 if (loadListener != null) {
                     loadListener.beginScriptElement();
                 }
 
                 current = new ScriptElement();
-            } else if (localName.equals(DEFINE_TAG)) {
+            }*/
+            else if (localName.equals(DEFINE_TAG)) {
                 if (loadListener != null) {
                     loadListener.beginDefineElement();
                 }
@@ -2921,7 +2943,9 @@ public class FXMLLoader {
 
     // TODO Rename to loadType() when deprecated static version is removed
     private Class<?> loadTypeForPackage(String packageName, String className) throws ClassNotFoundException {
+        //mymod2
         return getClassLoader().loadClass(packageName + "." + className.replace('.', '$'));
+//        return Class.forName((packageName + "." + className.replace('.', '$')).replace("/", "."));
     }
 
     private static enum SupportedType {
@@ -2992,14 +3016,15 @@ public class FXMLLoader {
         return null;
     }
 
-    private ScriptEngineManager getScriptEngineManager() {
-        if (scriptEngineManager == null) {
-            scriptEngineManager = new javax.script.ScriptEngineManager();
-            scriptEngineManager.setBindings(new SimpleBindings(namespace));
-        }
-
-        return scriptEngineManager;
-    }
+    // mymod: commented out.
+//    private ScriptEngineManager getScriptEngineManager() {
+//        if (scriptEngineManager == null) {
+//            scriptEngineManager = new javax.script.ScriptEngineManager();
+//            scriptEngineManager.setBindings(new SimpleBindings(namespace));
+//        }
+//
+//        return scriptEngineManager;
+//    }
 
     /**
      * Loads a type using the default class loader.
@@ -3024,7 +3049,9 @@ public class FXMLLoader {
      */
     public static Class<?> loadType(String className) throws ClassNotFoundException {
         ReflectUtil.checkPackageAccess(className);
+        //mymod2
         return Class.forName(className, true, getDefaultClassLoader());
+//        return Class.forName(className);
     }
 
     private static boolean needsClassLoaderPermissionCheck(ClassLoader from, ClassLoader to) {

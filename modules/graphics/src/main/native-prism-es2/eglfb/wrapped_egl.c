@@ -97,42 +97,51 @@ int load_wrapped_gles_symbols() {
         return 0;
     }
 #else
-    
-    Dl_info dlinfo;
-    if (dladdr(&load_wrapped_gles_symbols, &dlinfo)) {
 
-        size_t rslash = (size_t)rindex(dlinfo.dli_fname,'/');
-        if (rslash) {
-            char *b = (char *) alloca(strlen(dlinfo.dli_fname)+20);
-            rslash = rslash + 1 - (size_t)dlinfo.dli_fname;
-            strncpy(b, dlinfo.dli_fname,rslash);
-            strcpy(b + rslash, LENSPORT_LIBRARY_NAME);
+    //mymod
+    extern jboolean prism_platform_initialize(PrismNativePort* prismPort);
+    prismPort.version = NATIVE_PRISM_PORT_VERSION;
 
-            jboolean (*prism_platform_init)(PrismNativePort*) =  0;
-
-            void *dlhand = dlopen(b,RTLD_NOW); 
-            if (dlhand) {
-                prism_platform_init =  dlsym(dlhand, "prism_platform_initialize");
-                if (!prism_platform_init) {
-                    fprintf(stderr,"prism_platform_initialize missing in %s\n",LENSPORT_LIBRARY_NAME);
-                    exit(-1);
-                }
-            } else {
-                fprintf(stderr,"Prism FAILED TO OPEN %s\n",b);
-                fprintf(stderr,"dlopen reports %s\n",dlerror());
-                exit(-1);
-            }
-            prismPort.version = NATIVE_PRISM_PORT_VERSION;
-
-            if (!(*prism_platform_init)(&prismPort)) {
-                fprintf(stderr,"prism_platform_initialize failed\n");
-                exit(-1);
-            }
-        }
-    } else {
-        printf("Did not get DLINFO\n");
+    if (!prism_platform_initialize(&prismPort)) {
+        fprintf(stderr,"prism_platform_initialize failed\n");
         exit(-1);
     }
+    
+    // Dl_info dlinfo;
+    // if (dladdr(&load_wrapped_gles_symbols, &dlinfo)) {
+
+    //     size_t rslash = (size_t)rindex(dlinfo.dli_fname,'/');
+    //     if (rslash) {
+    //         char *b = (char *) alloca(strlen(dlinfo.dli_fname)+20);
+    //         rslash = rslash + 1 - (size_t)dlinfo.dli_fname;
+    //         strncpy(b, dlinfo.dli_fname,rslash);
+    //         strcpy(b + rslash, LENSPORT_LIBRARY_NAME);
+
+    //         jboolean (*prism_platform_init)(PrismNativePort*) =  0;
+
+    //         void *dlhand = dlopen(b,RTLD_NOW); 
+    //         if (dlhand) {
+    //             prism_platform_init =  dlsym(dlhand, "prism_platform_initialize");
+    //             if (!prism_platform_init) {
+    //                 fprintf(stderr,"prism_platform_initialize missing in %s\n",LENSPORT_LIBRARY_NAME);
+    //                 exit(-1);
+    //             }
+    //         } else {
+    //             fprintf(stderr,"Prism FAILED TO OPEN %s\n",b);
+    //             fprintf(stderr,"dlopen reports %s\n",dlerror());
+    //             exit(-1);
+    //         }
+    //         prismPort.version = NATIVE_PRISM_PORT_VERSION;
+
+    //         if (!(*prism_platform_init)(&prismPort)) {
+    //             fprintf(stderr,"prism_platform_initialize failed\n");
+    //             exit(-1);
+    //         }
+    //     }
+    // } else {
+    //     printf("Did not get DLINFO\n");
+    //     exit(-1);
+    // }
 
 #endif
     return 1;

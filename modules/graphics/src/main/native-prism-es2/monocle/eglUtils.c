@@ -124,6 +124,8 @@ EGLSurface getSharedWindowSurface(EGLDisplay dpy,
     return sharedWindowSurface;
 }
 
+//mymod: already defined in glass/monocle/EGL.c
+/*
 void setEGLAttrs(jint *attrs, int *eglAttrs) {
     int index = 0;
 
@@ -161,6 +163,7 @@ void setEGLAttrs(jint *attrs, int *eglAttrs) {
     eglAttrs[index++] = EGL_OPENGL_ES2_BIT;
     eglAttrs[index] = EGL_NONE;
 }
+*/
 
 ContextInfo *eglContextFromConfig(EGLDisplay *dpy, EGLConfig config) {
 

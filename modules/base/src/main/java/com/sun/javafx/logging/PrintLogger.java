@@ -29,7 +29,6 @@ import java.security.AccessController;
 import java.security.PrivilegedAction;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -63,7 +62,7 @@ class PrintLogger extends Logger {
      */
     private static long THRESHOLD = (long)
             AccessController.doPrivileged((PrivilegedAction<Integer>) () -> Integer.getInteger("javafx.pulseLogger.threshold", 17));
-    
+
     /**
      * Optionally exit after a given number of pulses
      */
@@ -80,9 +79,9 @@ class PrintLogger extends Logger {
     /**
      * When printing the truncated form of the pulse, we just print one truncated
      * form after another, such as:
-     * 
+     *
      * [5][2][4]
-     * 
+     *
      * This way we don't cause the console to scroll far vertically in the case of fast
      * pulses. We do this so that relevant information (pulses that exceed the threshold)
      * is easy to find and remains visible as long as possible in the console. However,
@@ -102,21 +101,21 @@ class PrintLogger extends Logger {
      * the time interval between the start of pulses.
      */
     private long lastPulseStartTime;
-    
+
     class ThreadLocalData {
         String  phaseName;
         long    phaseStart;
     }
-    
+
     private Thread fxThread;
-    private final ThreadLocal<ThreadLocalData> phaseData = 
+    private final ThreadLocal<ThreadLocalData> phaseData =
         new ThreadLocal() {
             @Override
             public ThreadLocalData initialValue() {
                 return new ThreadLocalData();
             }
         };
-    
+
 
     /**
      * The queue of all PulseData objects, both available and those in use.
@@ -126,19 +125,19 @@ class PrintLogger extends Logger {
      */
     private PulseData head;
     private PulseData tail;
-    
+
     /**
      * A synchronization object for printing arbitrage.
      */
     private AtomicInteger active;
-    
+
     /**
      * PulseData object states
      */
     private static final int AVAILABLE = 0;
     private static final int INCOMPLETE = 1;
     private static final int COMPLETE = 2;
-    
+
     /**
      * Disallow instantiation.
      */
@@ -158,7 +157,7 @@ class PrintLogger extends Logger {
         }
         return printLogger;
     }
-    
+
     /**
      * Allocate and initialize a PulseData object
      */
@@ -174,7 +173,7 @@ class PrintLogger extends Logger {
         }
         tail.next = res;
         tail = res;
-        res.init(n);        
+        res.init(n);
         return res;
     }
 
@@ -257,7 +256,7 @@ class PrintLogger extends Logger {
         }
         renderData = null;
     }
-    
+
     /**
      * Adds a message to the log for the pulse.
      * @param message The message to log. A newline will be added automatically.
@@ -312,13 +311,13 @@ class PrintLogger extends Logger {
         }
         cval.value += 1;
     }
-    
+
     @Override
     public void newPhase(String name) {
         long curTime = System.nanoTime();
 
         ThreadLocalData curPhase = phaseData.get();
-        if (curPhase.phaseName != null) {            
+        if (curPhase.phaseName != null) {
             PulseData pulseData = Thread.currentThread() == fxThread ? fxData : renderData;
             if (pulseData != null) {
                 pulseData.message
@@ -333,14 +332,14 @@ class PrintLogger extends Logger {
         curPhase.phaseName = name;
         curPhase.phaseStart = curTime;
     }
-    
+
     /**
      *  A mutable integer to be used in the counter map
      */
     private static class Counter {
         int     value;
     }
-    
+
     /**
      * The data we collect per pulse. We store the pulse number
      * associated with this pulse, along with what time it
@@ -364,15 +363,15 @@ class PrintLogger extends Logger {
             interval = 0;
             pushedRender = false;
         }
-        
+
         void printAndReset() {
             long endTime = System.nanoTime();
             long totalTime = (endTime - startTime)/1000000L;
-            
+
             if (state != COMPLETE) {
                 System.err.println("\nWARNING: logging incomplete state");
             }
-            
+
             if (totalTime <= THRESHOLD) {
                 // Don't print inter pulse data
                 if (pulseCount != INTER_PULSE_DATA) {
@@ -381,7 +380,7 @@ class PrintLogger extends Logger {
             }
             else {
                 if (pulseCount == INTER_PULSE_DATA) {
-                    System.err.println("\n\nINTER PULSE LOG DATA");                
+                    System.err.println("\n\nINTER PULSE LOG DATA");
                 }
                 else {
                     System.err.print("\n\nPULSE: " + pulseCount +
@@ -402,7 +401,7 @@ class PrintLogger extends Logger {
                 }
                 wrapCount = 0;
             }
-            
+
             // Reset the state
             message.setLength(0);
             counters.clear();

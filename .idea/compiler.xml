@@ -3,8 +3,8 @@
   <component name="CompilerConfiguration">
     <option name="DEFAULT_COMPILER" value="Javac" />
     <excludeFromCompile>
-      <file url="file://$PROJECT_DIR$/../../deploy/javafx-deploy-samples/src/helloworld/HelloFullscreen.java" />
-      <file url="file://$PROJECT_DIR$/../../deploy/javafx-deploy-samples/src/helloworld/HelloFullscreenToggle.java" />
+      <file url="file:///deploy/javafx-deploy-samples/src/helloworld/HelloFullscreen.java" />
+      <file url="file:///deploy/javafx-deploy-samples/src/helloworld/HelloFullscreenToggle.java" />
     </excludeFromCompile>
     <resourceExtensions />
     <wildcardResourcePatterns>
@@ -22,6 +22,9 @@
         <processorPath useClasspath="true" />
       </profile>
     </annotationProcessing>
+  </component>
+  <component name="JavacSettings">
+    <option name="ADDITIONAL_OPTIONS_STRING" value="-Xmaxerrs 100500 -Xmaxwarns 100500 " />
   </component>
 </project>
 

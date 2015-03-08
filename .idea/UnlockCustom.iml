@@ -4,6 +4,7 @@
     <exclude-output />
     <content url="file://$MODULE_DIR$/apps/scenebuilder/samples/UnlockCustom">
       <sourceFolder url="file://$MODULE_DIR$/apps/scenebuilder/samples/UnlockCustom/src" isTestSource="false" />
+      <excludeFolder url="file://$MODULE_DIR$/apps/scenebuilder/samples/UnlockCustom" />
     </content>
     <orderEntry type="sourceFolder" forTests="false" />
     <orderEntry type="module" module-name="rt" />

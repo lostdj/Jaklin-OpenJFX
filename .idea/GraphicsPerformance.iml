@@ -5,6 +5,7 @@
     <content url="file://$MODULE_DIR$/apps/performance/GraphicsPerformance">
       <sourceFolder url="file://$MODULE_DIR$/apps/performance/GraphicsPerformance/src/main/java" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/apps/performance/GraphicsPerformance/src/main/resources" isTestSource="false" />
+      <excludeFolder url="file://$MODULE_DIR$/apps/performance/GraphicsPerformance/src/main/java" />
     </content>
     <orderEntry type="sourceFolder" forTests="false" />
     <orderEntry type="module" module-name="rt" />

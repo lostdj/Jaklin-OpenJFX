@@ -24,6 +24,7 @@
  */
 package com.sun.glass.events.mac;
 
+import java.lang.annotation.Native;
 import java.util.Map;
 import com.sun.glass.ui.Window;
 
@@ -31,28 +32,43 @@ import com.sun.glass.ui.Window;
 
 // used by Mac OS X impl for handling an NPAPI event sent from plugin to Glass process
 public class NpapiEvent {
-    
+
+    //mymod
     // draw
+    @Native
     final static public int NPCocoaEventDrawRect            = 1;
+    @Native
     // mouse
     final static public int NPCocoaEventMouseDown           = 2;
+    @Native
     final static public int NPCocoaEventMouseUp             = 3;
+    @Native
     final static public int NPCocoaEventMouseMoved          = 4;
+    @Native
     final static public int NPCocoaEventMouseEntered        = 5;
+    @Native
     final static public int NPCocoaEventMouseExited         = 6;
+    @Native
     final static public int NPCocoaEventMouseDragged        = 7;
+    @Native
     // key
     final static public int NPCocoaEventKeyDown             = 8;
+    @Native
     final static public int NPCocoaEventKeyUp               = 9;
+    @Native
     final static public int NPCocoaEventFlagsChanged        = 10;
+    @Native
     // focus
     final static public int NPCocoaEventFocusChanged        = 11;
+    @Native
     final static public int NPCocoaEventWindowFocusChanged  = 12;
+    @Native
     // mouse
     final static public int NPCocoaEventScrollWheel         = 13;
+    @Native
     // text input
     final static public int NPCocoaEventTextInput           = 14;
-    
+
     private native static void _dispatchCocoaNpapiDrawEvent(long windowPtr, int type,
             long context, double x, double y, double width, double height);
     private native static void _dispatchCocoaNpapiMouseEvent(long windowPtr, int type,
@@ -65,7 +81,7 @@ public class NpapiEvent {
             boolean hasFocus);
     private native static void _dispatchCocoaNpapiTextInputEvent(long windowPtr, int type,
             String text);
-    
+
     final private static boolean getBoolean(Map eventInfo, String key) {
         boolean value = false;
         {

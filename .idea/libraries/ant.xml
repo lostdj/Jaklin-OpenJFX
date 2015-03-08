@@ -1,0 +1,13 @@
+<component name="libraryTable">
+  <library name="ant">
+    <CLASSES>
+      <root url="jar://$PROJECT_DIR$/my/ext/ant/ant-1.8.2.jar!/" />
+      <root url="jar://$PROJECT_DIR$/my/ext/ant/ant-launcher-1.8.2.jar!/" />
+      <root url="jar://$PROJECT_DIR$/my/ext/ant/antlr-3.5.2.jar!/" />
+      <root url="jar://$PROJECT_DIR$/my/ext/ant/antlr-runtime-3.5.2.jar!/" />
+      <root url="jar://$PROJECT_DIR$/my/ext/ant/stringtemplate-3.2.1.jar!/" />
+    </CLASSES>
+    <JAVADOC />
+    <SOURCES />
+  </library>
+</component>

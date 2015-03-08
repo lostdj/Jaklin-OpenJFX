@@ -33,7 +33,7 @@ import java.security.PrivilegedAction;
  */
 class X11Platform extends NativePlatform {
 
-    private final boolean x11Input;
+    final boolean x11Input;
 
     X11Platform() {
         LinuxSystem.getLinuxSystem().loadLibrary();
@@ -72,7 +72,13 @@ class X11Platform extends NativePlatform {
      */
     @Override
     protected NativeScreen createScreen() {
-        return new X11Screen(x11Input);
+        try {
+            return new X11Screen(x11Input, NativePlatformFactory.getNativePlatform().getAcceleratedScreen(null).platformGetNativeDisplay());
+        }
+        catch(GLException e)
+        {
+            throw new RuntimeException(e);
+        }
     }
 
     /** Create the accelerated screen for this platform

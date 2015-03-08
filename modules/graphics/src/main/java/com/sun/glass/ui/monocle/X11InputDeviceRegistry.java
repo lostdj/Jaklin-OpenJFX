@@ -78,11 +78,13 @@ class X11InputDeviceRegistry extends InputDeviceRegistry {
             state = new MouseState();
             X.XEvent event = new X.XEvent();
             while (true) {
+//                /*mymod*/xLib.XLockDisplay(display);
                 xLib.XNextEvent(display, event.p);
                 if (X.XEvent.getWindow(event.p) != window) {
                     continue;
                 }
                 processXEvent(event, runnableProcessor);
+//                /*mymod*/xLib.XUnlockDisplay(display);
             }
         });
         x11InputThread.setName("X11 Input");

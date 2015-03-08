@@ -1,0 +1,6 @@
+[submodule "my/ext/mysdl"]
+	path = my/ext/mysdl
+	url = https://github.com/lostdj/Jaklin-SDL.git
+[submodule "my/ext/myft"]
+	path = my/ext/myft
+	url = https://github.com/lostdj/Jaklin-FreeType.git

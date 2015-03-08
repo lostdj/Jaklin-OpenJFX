@@ -24,28 +24,52 @@
  */
 package com.sun.glass.ui;
 
-public abstract class Cursor {
+import java.lang.annotation.Native;
 
+public abstract class Cursor {
+    //mymod
+
+    @Native
     public final static int CURSOR_NONE = -1;
+    @Native
     public final static int CURSOR_CUSTOM = 0;
+    @Native
     public final static int CURSOR_DEFAULT = 1;
+    @Native
     public final static int CURSOR_TEXT = 2;
+    @Native
     public final static int CURSOR_CROSSHAIR = 3;
+    @Native
     public final static int CURSOR_CLOSED_HAND = 4;
+    @Native
     public final static int CURSOR_OPEN_HAND = 5;
+    @Native
     public final static int CURSOR_POINTING_HAND = 6;
+    @Native
     public final static int CURSOR_RESIZE_LEFT = 7;
+    @Native
     public final static int CURSOR_RESIZE_RIGHT = 8;
+    @Native
     public final static int CURSOR_RESIZE_UP = 9;
+    @Native
     public final static int CURSOR_RESIZE_DOWN = 10;
+    @Native
     public final static int CURSOR_RESIZE_LEFTRIGHT = 11;
+    @Native
     public final static int CURSOR_RESIZE_UPDOWN = 12;
+    @Native
     public final static int CURSOR_DISAPPEAR = 13;
+    @Native
     public final static int CURSOR_WAIT = 14;
+    @Native
     public final static int CURSOR_RESIZE_SOUTHWEST = 15;
+    @Native
     public final static int CURSOR_RESIZE_SOUTHEAST = 16;
+    @Native
     public final static int CURSOR_RESIZE_NORTHWEST = 17;
+    @Native
     public final static int CURSOR_RESIZE_NORTHEAST = 18;
+    @Native
     public final static int CURSOR_MOVE = 19;
 
     private final int type;

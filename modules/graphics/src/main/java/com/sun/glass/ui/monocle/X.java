@@ -69,6 +69,7 @@ class X {
     static final long ButtonPressMask = 1l << 2;
     static final long ButtonReleaseMask = 1l << 3;
     static final long PointerMotionMask = 1l << 6;
+    static final long ExposureMask = 1l << 15;
     static final long SubstructureRedirectMask = 1l << 19;
     static final long SubstructureNotifyMask = 1l << 20;
 
@@ -186,12 +187,12 @@ class X {
     }
 
     private X() {}
-    native void XInitThreads();
+    native /*mymod*/boolean/*void*/ XInitThreads();
     native void XLockDisplay(long display);
     native void XUnlockDisplay(long display);
     native long XOpenDisplay(String displayName);
     native long DefaultScreenOfDisplay(long display);
-    native long RootWindowOfScreen(long screen);
+    native long RootWindowOfScreen(long display, long screen);
     native int WidthOfScreen(long screen);
     native int HeightOfScreen(long screen);
     native long XCreateWindow(

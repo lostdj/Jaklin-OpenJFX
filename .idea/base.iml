@@ -14,10 +14,14 @@
       <excludeFolder url="file://$MODULE_DIR$/modules/base/build/dependency-cache" />
       <excludeFolder url="file://$MODULE_DIR$/modules/base/build/libs" />
       <excludeFolder url="file://$MODULE_DIR$/modules/base/build/tmp" />
+      <excludeFolder url="file://$MODULE_DIR$/modules/base/src/test" />
+    </content>
+    <content url="file://$MODULE_DIR$/my/modules/base">
+      <sourceFolder url="file://$MODULE_DIR$/my/modules/base/src/version-info/java" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/my/modules/base/src/etc/java" isTestSource="false" />
     </content>
     <orderEntry type="sourceFolder" forTests="false" />
-    <orderEntry type="module" module-name="buildSrc" exported="" />
+    <orderEntry type="module" module-name="buildSrc" />
     <orderEntry type="inheritedJdk" />
   </component>
 </module>
-

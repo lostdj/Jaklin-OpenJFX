@@ -27,6 +27,7 @@ package com.sun.glass.ui;
 import com.sun.glass.events.MouseEvent;
 import com.sun.glass.events.WindowEvent;
 
+import java.lang.annotation.Native;
 import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
@@ -37,7 +38,7 @@ public abstract class Window {
     public static class EventHandler {
         public void handleWindowEvent(Window window, long time, int type) {
         }
-        
+
         /**
          * Notifies a listener that the screen object for this Window instance
          * has been updated.
@@ -110,9 +111,13 @@ public abstract class Window {
 
     // window style mask
 
+    //mymod
     // visual kind: mutually exclusive
+    @Native
     public static final int UNTITLED        = 0;
+    @Native
     public static final int TITLED          = 1 << 0;
+    @Native
     public static final int TRANSPARENT     = 1 << 1;
 
     // functional type: mutually exclusive
@@ -121,6 +126,7 @@ public abstract class Window {
      *
      * Usual top-level window.
      */
+    @Native
     public static final int NORMAL          = 0;
     /**
      * An utility window.
@@ -128,6 +134,7 @@ public abstract class Window {
      * Often used for floating toolbars. It has smaller than usual decorations
      * and doesn't display a taskbar button.
      */
+    @Native
     public static final int UTILITY         = 1 << 2;
     /**
      * A popup window.
@@ -136,17 +143,22 @@ public abstract class Window {
      * default it may display a task-bar button. To hide it the window must be
      * owned.
      */
+    @Native
     public static final int POPUP           = 1 << 3;
 
     // These affect window decorations as well as system menu actions,
     // so applicable to both decorated and undecorated windows
+    @Native
     public static final int CLOSABLE        = 1 << 4;
+    @Native
     public static final int MINIMIZABLE     = 1 << 5;
+    @Native
     public static final int MAXIMIZABLE     = 1 << 6;
 
     /**
      * Indicates that the window trim will draw from right to left.
      */
+    @Native
     public static final int RIGHT_TO_LEFT     = 1 << 7;
 
     /**
@@ -155,11 +167,15 @@ public abstract class Window {
      * This is supported not on all platforms, the client should check if the feature is supported by using
      * {@link com.sun.glass.ui.Application#supportsUnifiedWindows()}
      */
+    @Native
     public static final int UNIFIED = 1 << 8;
 
     final static private class State {
+        @Native
         private static final int NORMAL = 1;
+        @Native
         private static final int MINIMIZED = 2;
+        @Native
         private static final int MAXIMIZED = 3;
     }
 
@@ -172,17 +188,23 @@ public abstract class Window {
      * @see #setLevel
      */
     public static final class Level {
+        //mymod
+        @Native
         private static final int _MIN = 1;
 
         /** Normal window level. */
+        @Native
         public static final int NORMAL = 1;
 
         /** A window level that is above all other NORMAL windows. */
+        @Native
         public static final int FLOATING = 2;
 
         /** A very topmost window level. May cover system UI elements such as dock, taskbar, etc. */
+        @Native
         public static final int TOPMOST = 3;
 
+        @Native
         private static final int _MAX = 3;
     }
 
@@ -248,7 +270,7 @@ public abstract class Window {
             default:
                 throw new RuntimeException("The functional type should be NORMAL, POPUP, or UTILITY, but not a combination of these");
         }
-        
+
         if (((styleMask & UNIFIED) != 0)
                 && !Application.GetApplication().supportsUnifiedWindows()) {
            styleMask &= ~UNIFIED;
@@ -344,7 +366,7 @@ public abstract class Window {
         return this.delegatePtr != 0L ? this.delegatePtr : this.ptr;
     }
 
-    /** 
+    /**
      * return the "raw' pointer needed by subclasses to pass to native routines
      * @return the native pointer.
      */
@@ -1177,8 +1199,12 @@ public abstract class Window {
             } else { // WindowEvent.RESIZE or WindowEvent.RESTORE
                 this.state = State.NORMAL;
             }
-            this.width = width;
-            this.height = height;
+
+            //mymod
+            if(width != -1) {
+                this.width = width;
+                this.height = height;
+            }
 
             // update moveRect/resizeRect
             if (this.helper != null){
@@ -1353,7 +1379,7 @@ public abstract class Window {
                         (y >= this.y) && (y < (this.y + this.height)));
         }
     }
-    
+
     protected void notifyLevelChanged(int level) {
         this.level = level;
         if (this.eventHandler != null) {

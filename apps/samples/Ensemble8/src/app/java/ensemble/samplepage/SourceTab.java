@@ -34,7 +34,8 @@ package ensemble.samplepage;
 import ensemble.EnsembleApp;
 import ensemble.SampleInfo.URL;
 import ensemble.util.Utils;
-import ensemble.util.WebViewWrapper;
+//mymod
+//import ensemble.util.WebViewWrapper;
 import javafx.application.ConditionalFeature;
 import javafx.application.Platform;
 import javafx.scene.control.ScrollPane;
@@ -72,8 +73,9 @@ class SourceTab extends Tab {
                     textArea.setEditable(false);
                     setContent(textArea);
                 } else {
-                    String html = convertToHTML(source);
-                    setContent(WebViewWrapper.createWebView(html));
+                //mymod
+//                    String html = convertToHTML(source);
+//                    setContent(WebViewWrapper.createWebView(html));
                 }
                 break;
             case ".jpg":

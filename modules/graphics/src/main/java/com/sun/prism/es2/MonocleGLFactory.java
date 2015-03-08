@@ -103,6 +103,12 @@ class MonocleGLFactory extends GLFactory {
         attrArr[GLPixelFormat.Attributes.DOUBLEBUFFER] = attrs.isDoubleBuffer() ? 1 : 0;
         attrArr[GLPixelFormat.Attributes.ONSCREEN] = attrs.isOnScreen() ? 1 : 0;
 
+//        int attrArr[] = new int[4];
+//        attrArr[GLPixelFormat.Attributes.RED_SIZE] = 1;
+//        attrArr[GLPixelFormat.Attributes.GREEN_SIZE] = 1;
+//        attrArr[GLPixelFormat.Attributes.BLUE_SIZE] = 1;
+//        attrArr[GLPixelFormat.Attributes.DEPTH_SIZE] = 1;
+
         try {
             accScreen = NativePlatformFactory.getNativePlatform().getAcceleratedScreen(
 

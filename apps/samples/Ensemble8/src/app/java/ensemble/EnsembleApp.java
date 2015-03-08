@@ -32,6 +32,7 @@
 package ensemble;
 
 
+import com.sun.javafx.perf.PerformanceTracker;
 import ensemble.control.Popover;
 import ensemble.control.SearchBox;
 import ensemble.control.TitledToolBar;
@@ -98,7 +99,7 @@ public class EnsembleApp extends Application {
     private Popover sampleListPopover;
     private SearchPopover searchPopover;
     private MenuBar menuBar;
-    
+
     static {
         System.setProperty("java.net.useSystemProxies", "true");
         Logger.getLogger(EnsembleApp.class.getName()).finer("IS_IPHONE = " + IS_IPHONE);
@@ -130,8 +131,9 @@ public class EnsembleApp extends Application {
                 sampleListPopover.setLayoutX((int)listBtnBottomCenter.getX()-50);
                 sampleListPopover.setLayoutY((int)listBtnBottomCenter.getY()+20);
                 Point2D searchBoxBottomCenter = searchBox.localToScene(searchBox.getWidth()/2, searchBox.getHeight());
-                searchPopover.setLayoutX((int)searchBoxBottomCenter.getX()-searchPopover.getLayoutBounds().getWidth()+50);
-                searchPopover.setLayoutY((int)searchBoxBottomCenter.getY()+20);
+                //mymod
+//                searchPopover.setLayoutX((int)searchBoxBottomCenter.getX()-searchPopover.getLayoutBounds().getWidth()+50);
+//                searchPopover.setLayoutY((int)searchBoxBottomCenter.getY()+20);
             }
         };
         // CREATE MENUBAR
@@ -154,7 +156,7 @@ public class EnsembleApp extends Application {
                     screenSizeMenuItem("iPhone 5 Portrait", 640, 1136, true, screenSizeToggle));
             menuBar.getMenus().add(menu);
             screenSizeToggle.selectToggle(screenSizeToggle.getToggles().get(0));
-            
+
             root.getChildren().add(menuBar);
         }
         // CREATE TOOLBAR
@@ -207,7 +209,7 @@ public class EnsembleApp extends Application {
             pageBrowser.goHome();
         });
         homeButton.disableProperty().bind(pageBrowser.atHomeProperty());
-        
+
         // create and setup list popover
         sampleListPopover = new Popover();
         sampleListPopover.setPrefWidth(440);
@@ -224,7 +226,7 @@ public class EnsembleApp extends Application {
                 });
             }
         });
-        
+
         // create AndroidStyle menu handling
         if (IS_ANDROID) {
             root.setOnKeyReleased(new EventHandler<KeyEvent>() {
@@ -267,10 +269,11 @@ public class EnsembleApp extends Application {
                 }
             });
         }
-        
+
+        //mymod
         // create and setup search popover
-        searchPopover = new SearchPopover(searchBox,pageBrowser);
-        root.getChildren().add(searchPopover);
+//        searchPopover = new SearchPopover(searchBox,pageBrowser);
+//        root.getChildren().add(searchPopover);
     }
 
     private RadioMenuItem screenSizeMenuItem(String text, final int width, final int height, final boolean retina, ToggleGroup tg) {
@@ -308,32 +311,33 @@ public class EnsembleApp extends Application {
     private void setStylesheets() {
         final String EXTERNAL_STYLESHEET = "http://fonts.googleapis.com/css?family=Source+Sans+Pro:200,300,400,600";
         scene.getStylesheets().setAll("/ensemble/EnsembleStylesCommon.css");
-        Thread backgroundThread = new Thread(() -> {
-            try {
-                URL url = new URL(EXTERNAL_STYLESHEET);
-                try (
-                        ReadableByteChannel rbc = Channels.newChannel(url.openStream());
-                        Reader newReader = Channels.newReader(rbc, "ISO-8859-1");
-                        BufferedReader bufferedReader = new BufferedReader(newReader)
-                        ) {
-                    // Checking whether we can read a line from this url
-                    // without exception
-                    bufferedReader.readLine();
-                }
-                Platform.runLater(() -> {
-                    // when succeeded add this stylesheet to the scene
-                    scene.getStylesheets().add(EXTERNAL_STYLESHEET);
-                });
-            }catch (MalformedURLException ex) {
-                Logger.getLogger(EnsembleApp.class.getName()).log(Level.FINE, "Failed to load external stylesheet", ex);
-            }catch (IOException ex) {
-                    Logger.getLogger(EnsembleApp.class.getName()).log(Level.FINE, "Failed to load external stylesheet", ex);
-                }
-        }, "Trying to reach external styleshet");
-        backgroundThread.setDaemon(true);
-        backgroundThread.start();
-    }    
-    
+        //mymod
+//        Thread backgroundThread = new Thread(() -> {
+//            try {
+//                URL url = new URL(EXTERNAL_STYLESHEET);
+//                try (
+//                        ReadableByteChannel rbc = Channels.newChannel(url.openStream());
+//                        Reader newReader = Channels.newReader(rbc, "ISO-8859-1");
+//                        BufferedReader bufferedReader = new BufferedReader(newReader)
+//                        ) {
+//                    // Checking whether we can read a line from this url
+//                    // without exception
+//                    bufferedReader.readLine();
+//                }
+//                Platform.runLater(() -> {
+//                    // when succeeded add this stylesheet to the scene
+//                    scene.getStylesheets().add(EXTERNAL_STYLESHEET);
+//                });
+//            }catch (MalformedURLException ex) {
+//                Logger.getLogger(EnsembleApp.class.getName()).log(Level.FINE, "Failed to load external stylesheet", ex);
+//            }catch (IOException ex) {
+//                    Logger.getLogger(EnsembleApp.class.getName()).log(Level.FINE, "Failed to load external stylesheet", ex);
+//                }
+//        }, "Trying to reach external styleshet");
+//        backgroundThread.setDaemon(true);
+//        backgroundThread.start();
+    }
+
     @Override public void start(final Stage stage) throws Exception {
         // CREATE SCENE
         scene = new Scene(root, 1024, 768, Color.BLACK);
@@ -351,6 +355,14 @@ public class EnsembleApp extends Application {
             stage.setHeight(primaryScreenBounds.getHeight());
         }
         stage.setTitle("Ensemble");
+
+        //mymod
+        com.sun.glass.ui.Application.GetApplication().createTimer(() ->
+        {
+            float fpsv = PerformanceTracker.getSceneTracker(scene).getInstantFPS();
+            System.out.println("FPS: " + fpsv);
+        }).start(1000);
+
         stage.show();
     }
 

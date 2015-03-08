@@ -25,6 +25,8 @@
 
 package com.sun.javafx.font;
 
+import com.sun.javafx.runtime.MyProps;
+
 import java.lang.ref.Reference;
 import java.lang.ref.ReferenceQueue;
 import java.lang.ref.WeakReference;
@@ -51,28 +53,64 @@ public class Disposer implements Runnable {
     static {
         disposerInstance = new Disposer();
 
-        ThreadGroup tg = Thread.currentThread().getThreadGroup();
-        java.security.AccessController.doPrivileged(
-            new java.security.PrivilegedAction() {
-                public Object run() {
+        //mymod
+        if(MyProps.mt) {
+            ThreadGroup tg = Thread.currentThread().getThreadGroup();
+            java.security.AccessController.doPrivileged(
+                    new java.security.PrivilegedAction() {
+                        public Object run() {
                     /* The thread must be a member of a thread group
                      * which will not get GCed before VM exit.
                      * Make its parent the top-level thread group.
                      */
-                    ThreadGroup tg = Thread.currentThread().getThreadGroup();
-                    for (ThreadGroup tgn = tg;
-                         tgn != null;
-                         tg = tgn, tgn = tg.getParent());
-                    Thread t =
-                        new Thread(tg, disposerInstance, "Prism Font Disposer");
-                    t.setContextClassLoader(null);
-                    t.setDaemon(true);
-                    t.setPriority(Thread.MAX_PRIORITY);
-                    t.start();
-                    return null;
-                }
-            }
-        );
+                            ThreadGroup tg = Thread.currentThread().getThreadGroup();
+                            for (ThreadGroup tgn = tg;
+                                 tgn != null;
+                                 tg = tgn, tgn = tg.getParent())
+                                ;
+                            Thread t =
+                                    new Thread(tg, disposerInstance, "Prism Font Disposer");
+                            t.setContextClassLoader(null);
+                            t.setDaemon(true);
+                            t.setPriority(Thread.MAX_PRIORITY);
+                            t.start();
+                            return null;
+                        }
+                    }
+            );
+        }
+    }
+
+    //mymod
+    static class Ref extends WeakReference
+    {
+        DisposerRecord rec;
+
+        public Ref(Object referent) {
+            super(referent);
+
+            throw new RuntimeException();
+        }
+
+        public Ref(Object referent, ReferenceQueue q) {
+            super(referent, q);
+
+            throw new RuntimeException();
+        }
+
+        public Ref(Object target, DisposerRecord rec)
+        {
+            super(target);
+
+            this.rec = rec;
+        }
+
+        @Override
+        protected void finalize() throws Throwable {
+            super.finalize();
+
+            rec.dispose();
+        }
     }
 
     /**
@@ -82,8 +120,15 @@ public class Disposer implements Runnable {
      * @see DisposerRecord
      */
     public static WeakReference addRecord(Object target, DisposerRecord rec) {
-        WeakReference ref = new WeakReference(target, queue);
-        disposerInstance.records.put(ref, rec);
+        //mymod
+        WeakReference ref;
+        if(MyProps.mt) {
+            ref = new WeakReference(target, queue);
+            disposerInstance.records.put(ref, rec);
+        }
+        else
+            ref = new Ref(target, rec);
+
         return ref;
     }
 

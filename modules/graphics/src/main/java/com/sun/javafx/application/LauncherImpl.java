@@ -25,6 +25,7 @@
 
 package com.sun.javafx.application;
 
+import com.sun.javafx.runtime.MyProps;
 import javafx.application.Application;
 import javafx.application.Preloader;
 import javafx.application.Preloader.ErrorNotification;
@@ -61,19 +62,19 @@ public class LauncherImpl {
      * launchName is the name of the JavaFX application class to launch.
      */
     public static final String LAUNCH_MODE_CLASS = "LM_CLASS";
-    
+
     /**
      * When passed as launchMode to launchApplication, tells the method that
      * launchName is a path to a JavaFX application jar file to be launched.
      */
     public static final String LAUNCH_MODE_JAR = "LM_JAR";
-    
+
     // set to true to debug launch issues from Java launcher
     private static final boolean trace = false;
 
     // set system property javafx.verbose to true to make the launcher noisy
     private static boolean verbose = false;
-    
+
     private static final String MF_MAIN_CLASS = "Main-Class";
     private static final String MF_JAVAFX_MAIN = "JavaFX-Application-Class";
     private static final String MF_JAVAFX_PRELOADER = "JavaFX-Preloader-Class";
@@ -122,24 +123,24 @@ public class LauncherImpl {
     @SuppressWarnings("unchecked")
     public static void launchApplication(final Class<? extends Application> appClass,
             final String[] args) {
-        
+
         Class<? extends Preloader> preloaderClass = savedPreloaderClass;
-        
+
         if (preloaderClass == null) {
             String preloaderByProperty = AccessController.doPrivileged((PrivilegedAction<String>) () ->
                     System.getProperty("javafx.preloader"));
             if (preloaderByProperty != null) {
                 try {
-                    preloaderClass = (Class<? extends Preloader>) Class.forName(preloaderByProperty, 
+                    preloaderClass = (Class<? extends Preloader>) Class.forName(preloaderByProperty,
                             false, appClass.getClassLoader());
                 } catch (Exception e) {
-                    System.err.printf("Could not load preloader class '" + preloaderByProperty + 
+                    System.err.printf("Could not load preloader class '" + preloaderByProperty +
                             "', continuing without preloader.");
                     e.printStackTrace();
                 }
             }
         }
-        
+
         launchApplication(appClass, preloaderClass, args);
     }
 
@@ -175,33 +176,51 @@ public class LauncherImpl {
 //        System.err.println("launch standalone app: preloader class = "
 //                + preloaderClass);
 
+        //mymod
         // Create a new Launcher thread and then wait for that thread to finish
         final CountDownLatch launchLatch = new CountDownLatch(1);
-        Thread launcherThread = new Thread(() -> {
-            try {
-                launchApplication1(appClass, preloaderClass, args);
-            } catch (RuntimeException rte) {
-                launchException = rte;
-            } catch (Exception ex) {
-                launchException =
-                    new RuntimeException("Application launch exception", ex);
-            } catch (Error err) {
-                launchException =
-                    new RuntimeException("Application launch error", err);
-            } finally {
-                launchLatch.countDown();
+        Runnable r = new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    launchApplication1(appClass, preloaderClass, args);
+                } catch (RuntimeException rte) {
+                    launchException = rte;
+                } catch (Exception ex) {
+                    launchException =
+                            new RuntimeException("Application launch exception", ex);
+                } catch (Error err) {
+                    launchException =
+                            new RuntimeException("Application launch error", err);
+                } finally {
+                    if (MyProps.mt)
+                        launchLatch.countDown();
+                }
             }
-        });
-        launcherThread.setName("JavaFX-Launcher");
-        launcherThread.start();
+        };
 
-        // Wait for FX launcher thread to finish before returning to user
-        try {
-            launchLatch.await();
-        } catch (InterruptedException ex) {
-            throw new RuntimeException("Unexpected exception: ", ex);
+        //
+        if(SystemProperties.isDebug())
+            System.out.println("myfx.mt: " + MyProps.mt);
+
+        //
+        if(MyProps.mt)
+        {
+            Thread launcherThread = new Thread(r);
+            launcherThread.setName("JavaFX-Launcher");
+            launcherThread.start();
+
+            // Wait for FX launcher thread to finish before returning to user
+            try {
+                launchLatch.await();
+            } catch (InterruptedException ex) {
+                throw new RuntimeException("Unexpected exception: ", ex);
+            }
         }
+        else
+            r.run();
 
+        //
         if (launchException != null) {
             throw launchException;
         }
@@ -212,7 +231,7 @@ public class LauncherImpl {
      * directly from the command line via "java -jar fxapp.jar" or
      * "java -cp path some.fx.App". The launchMode argument must be one of
      * "LM_CLASS" or "LM_JAR" or execution will abort with an error.
-     * 
+     *
      * @param launchName Either the path to a jar file or the application class
      * name to launch
      * @param launchMode The method of launching the application, either LM_JAR
@@ -237,9 +256,9 @@ public class LauncherImpl {
         String preloaderClassName = null;
         String[] appArgs = args;
         ClassLoader appLoader = null;
-        
+
         verbose = Boolean.getBoolean("javafx.verbose");
-        
+
         if (launchMode.equals(LAUNCH_MODE_JAR)) {
             Attributes jarAttrs = getJarAttributes(launchName);
             if (jarAttrs == null) {
@@ -247,7 +266,7 @@ public class LauncherImpl {
             }
 
             // If we ever need to check JavaFX-Version, do that here...
-            
+
             // Support JavaFX-Class-Path, but warn that it's deprecated if used
             String fxClassPath = jarAttrs.getValue(MF_JAVAFX_CLASS_PATH);
             if (fxClassPath != null) {
@@ -258,7 +277,7 @@ public class LauncherImpl {
                         System.err.println("WARNING: Application jar uses deprecated JavaFX-Class-Path attribute."
                                +" Please use Class-Path instead.");
                     }
-                    
+
                     /*
                      * create a new ClassLoader to pull in the requested jar files
                      * OK if it returns null, that just means we didn't need to load
@@ -267,18 +286,18 @@ public class LauncherImpl {
                     appLoader = setupJavaFXClassLoader(new File(launchName), fxClassPath);
                 }
             }
-            
+
             // Support JavaFX-Feature-Proxy (only supported setting is 'auto', anything else is ignored)
             String proxySetting = jarAttrs.getValue(MF_JAVAFX_FEATURE_PROXY);
             if (proxySetting != null && "auto".equals(proxySetting.toLowerCase())) {
                 trySetAutoProxy();
             }
-            
+
             // process arguments and parameters if no args have been passed by the launcher
             if (args.length == 0) {
                 appArgs = getAppArguments(jarAttrs);
             }
-            
+
             // grab JavaFX-Application-Class
             mainClassName = jarAttrs.getValue(MF_JAVAFX_MAIN);
             if (mainClassName == null) {
@@ -313,11 +332,11 @@ public class LauncherImpl {
             try {
                 // reload this class through the app classloader
                 Class<?> launcherClass = appLoader.loadClass(LauncherImpl.class.getName());
-                
+
                 // then invoke the second part of this launcher using reflection
                 Method lawa = launcherClass.getMethod("launchApplicationWithArgs",
                         new Class[] { String.class, String.class, (new String[0]).getClass()});
-                
+
                 // set the thread context class loader before we continue, or it won't load properly
                 Thread.currentThread().setContextClassLoader(appLoader);
                 lawa.invoke(null, new Object[] {mainClassName, preloaderClassName, appArgs});
@@ -328,7 +347,7 @@ public class LauncherImpl {
             launchApplicationWithArgs(mainClassName, preloaderClassName, appArgs);
         }
     }
-    
+
     // Must be public since we could be called from a different class loader
     public static void launchApplicationWithArgs(final String mainClassName,
             final String preloaderClassName, String[] args) {
@@ -455,7 +474,7 @@ public class LauncherImpl {
             // don't bother if there's nothing to add
             if (!jcpList.isEmpty()) {
                 ArrayList<URL> urlList = new ArrayList<URL>();
-                
+
                 // prepend the existing classpath
                 // this will already have the app jar, so no need to worry about it
                 cp = System.getProperty("java.class.path");
@@ -477,10 +496,10 @@ public class LauncherImpl {
                 // we have to add jfxrt.jar to the new class loader, or the app won't load
                 URL jfxRtURL = LauncherImpl.class.getProtectionDomain().getCodeSource().getLocation();
                 urlList.add(jfxRtURL);
-                
+
                 // and finally append the JavaFX-Class-Path entries
                 urlList.addAll(jcpList);
-                
+
                 URL[] urls = (URL[])urlList.toArray(new URL[0]);
                 if (verbose) {
                     System.err.println("===== URL list");
@@ -499,7 +518,7 @@ public class LauncherImpl {
         }
         return null;
     }
-    
+
     private static void trySetAutoProxy() {
         // if explicit proxy settings are proxided we will skip autoproxy
         // Note: we only check few most popular settings.
@@ -522,14 +541,14 @@ public class LauncherImpl {
             }
             return;
         }
-        
+
         // grab deploy.jar
         // Note that we don't need to keep deploy.jar in the JavaFX classloader
         // it is only needed long enough to configure the proxy
         String javaHome = System.getProperty("java.home");
         File jreLibDir = new File(javaHome, "lib");
         File deployJar = new File(jreLibDir, "deploy.jar");
-        
+
         URL[] deployURLs;
         try {
             deployURLs = new URL[] {
@@ -542,7 +561,7 @@ public class LauncherImpl {
             }
             return; // give up setting proxy, usually silently
         }
-        
+
         try {
             URLClassLoader dcl = new URLClassLoader(deployURLs);
             Class sm = Class.forName("com.sun.deploy.services.ServiceManager",
@@ -573,7 +592,7 @@ public class LauncherImpl {
                     dcl);
             Method m = dps.getDeclaredMethod("reset", new Class[0]);
             m.invoke(null, new Object[0]);
-            
+
             if (verbose) {
                 System.out.println("Autoconfig of proxy is completed.");
             }
@@ -630,7 +649,7 @@ public class LauncherImpl {
         if (msg != null) {
             System.err.println(msg);
         }
-        
+
         if (trace) {
             if (cause != null) {
                 cause.printStackTrace();
@@ -679,14 +698,19 @@ public class LauncherImpl {
     }
 
     private static volatile boolean error = false;
-    private static volatile Throwable pConstructorError = null;
-    private static volatile Throwable pInitError = null;
-    private static volatile Throwable pStartError = null;
-    private static volatile Throwable pStopError = null;
+    //mymod
+//    private static volatile Throwable pConstructorError = null;
+//    private static volatile Throwable pInitError = null;
+//    private static volatile Throwable pStartError = null;
+//    private static volatile Throwable pStopError = null;
     private static volatile Throwable constructorError = null;
     private static volatile Throwable initError = null;
     private static volatile Throwable startError = null;
     private static volatile Throwable stopError = null;
+
+    //mymod
+    static Application theApp = null;
+    static PlatformImpl.FinishListener listener = null;
 
     private static void launchApplication1(final Class<? extends Application> appClass,
             final Class<? extends Preloader> preloaderClass,
@@ -710,167 +734,37 @@ public class LauncherImpl {
             }
         }
 
-        final AtomicBoolean pStartCalled = new AtomicBoolean(false);
+        //mymod
+//        final AtomicBoolean pStartCalled = new AtomicBoolean(false);
         final AtomicBoolean startCalled = new AtomicBoolean(false);
         final AtomicBoolean exitCalled = new AtomicBoolean(false);
-        final AtomicBoolean pExitCalled = new AtomicBoolean(false);
+//        final AtomicBoolean pExitCalled = new AtomicBoolean(false);
         final CountDownLatch shutdownLatch = new CountDownLatch(1);
-        final CountDownLatch pShutdownLatch = new CountDownLatch(1);
+//        final CountDownLatch pShutdownLatch = new CountDownLatch(1);
 
-        final PlatformImpl.FinishListener listener = new PlatformImpl.FinishListener() {
-            @Override public void idle(boolean implicitExit) {
-                if (!implicitExit) {
-                    return;
-                }
-
-//                System.err.println("JavaFX Launcher: system is idle");
-                if (startCalled.get()) {
-                    shutdownLatch.countDown();
-                } else if (pStartCalled.get()) {
-                    pShutdownLatch.countDown();
-                }
-            }
-
-            @Override public void exitCalled() {
-//                System.err.println("JavaFX Launcher: received exit notification");
-                exitCalled.set(true);
-                shutdownLatch.countDown();
+        Runnable finalq =
+        () ->
+        {
+            PlatformImpl.removeListener(listener);
+            // Workaround until RT-13281 is implemented
+            // Don't call exit if we detect an error in javaws mode
+//            PlatformImpl.tkExit();
+            final boolean isJavaws = System.getSecurityManager() != null;
+            if (error && isJavaws) {
+                System.err.println("Workaround until RT-13281 is implemented: keep toolkit alive");
+            } else {
+                PlatformImpl.tkExit();
             }
         };
-        PlatformImpl.addListener(listener);
 
-        try {
-            final AtomicReference<Preloader> pldr = new AtomicReference<>();
-            if (preloaderClass != null) {
-                // Construct an instance of the preloader on the FX thread, then
-                // call its init method on this (launcher) thread. Then call
-                // the start method on the FX thread.
-                PlatformImpl.runAndWait(() -> {
-                    try {
-                        Constructor<? extends Preloader> c = preloaderClass.getConstructor();
-                        pldr.set(c.newInstance());
-                        // Set startup parameters
-                        ParametersImpl.registerParameters(pldr.get(), new ParametersImpl(args));
-                    } catch (Throwable t) {
-                        System.err.println("Exception in Preloader constructor");
-                        pConstructorError = t;
-                        error = true;
-                    }
-                });
-            }
-            currentPreloader = pldr.get();
-
-            // Call init method unless exit called or error detected
-            if (currentPreloader != null && !error && !exitCalled.get()) {
-                try {
-                    // Call the application init method (on the Launcher thread)
-                    currentPreloader.init();
-                } catch (Throwable t) {
-                    System.err.println("Exception in Preloader init method");
-                    pInitError = t;
-                    error = true;
-                }
-            }
-
-            // Call start method unless exit called or error detected
-            if (currentPreloader != null && !error && !exitCalled.get()) {
-                // Call the application start method on FX thread
-                PlatformImpl.runAndWait(() -> {
-                    try {
-                        pStartCalled.set(true);
-
-                        // Create primary stage and call preloader start method
-                        final Stage primaryStage = new Stage();
-                        primaryStage.impl_setPrimary(true);
-                        currentPreloader.start(primaryStage);
-                    } catch (Throwable t) {
-                        System.err.println("Exception in Preloader start method");
-                        pStartError = t;
-                        error = true;
-                    }
-                });
-
-                // Notify preloader of progress
-                if (!error && !exitCalled.get()) {
-                    notifyProgress(currentPreloader, 0.0);
-                }
-            }
-
-            // Construct an instance of the application on the FX thread, then
-            // call its init method on this (launcher) thread. Then call
-            // the start method on the FX thread.
-            final AtomicReference<Application> app = new AtomicReference<>();
-            if (!error && !exitCalled.get()) {
-                if (currentPreloader != null) {
-                    if (simulateSlowProgress) {
-                        for (int i = 0; i < 100; i++) {
-                            notifyProgress(currentPreloader, (double)i / 100.0);
-                            Thread.sleep(10);
-                        }
-                    }
-                    notifyProgress(currentPreloader, 1.0);
-                    notifyStateChange(currentPreloader,
-                            StateChangeNotification.Type.BEFORE_LOAD, null);
-                }
-
-                PlatformImpl.runAndWait(() -> {
-                    try {
-                        Constructor<? extends Application> c = appClass.getConstructor();
-                        app.set(c.newInstance());
-                        // Set startup parameters
-                        ParametersImpl.registerParameters(app.get(), new ParametersImpl(args));
-                        PlatformImpl.setApplicationName(appClass);
-                    } catch (Throwable t) {
-                        System.err.println("Exception in Application constructor");
-                        constructorError = t;
-                        error = true;
-                    }
-                });
-            }
-            final Application theApp = app.get();
-
-            // Call init method unless exit called or error detected
-            if (!error && !exitCalled.get()) {
-                if (currentPreloader != null) {
-                    notifyStateChange(currentPreloader,
-                            StateChangeNotification.Type.BEFORE_INIT, theApp);
-                }
-
-                try {
-                    // Call the application init method (on the Launcher thread)
-                    theApp.init();
-                } catch (Throwable t) {
-                    System.err.println("Exception in Application init method");
-                    initError = t;
-                    error = true;
-                }
-            }
-
-            // Call start method unless exit called or error detected
-            if (!error && !exitCalled.get()) {
-                if (currentPreloader != null) {
-                    notifyStateChange(currentPreloader,
-                            StateChangeNotification.Type.BEFORE_START, theApp);
-                }
-                // Call the application start method on FX thread
-                PlatformImpl.runAndWait(() -> {
-                    try {
-                        startCalled.set(true);
-
-                        // Create primary stage and call application start method
-                        final Stage primaryStage = new Stage();
-                        primaryStage.impl_setPrimary(true);
-                        theApp.start(primaryStage);
-                    } catch (Throwable t) {
-                        System.err.println("Exception in Application start method");
-                        startError = t;
-                        error = true;
-                    }
-                });
-            }
-
+        Runnable q =
+        () ->
+        {
             if (!error) {
-                shutdownLatch.await();
+                try {
+                    shutdownLatch.await();
+                }
+                catch (Exception ignored) {}
 //                System.err.println("JavaFX Launcher: time to call stop");
             }
 
@@ -889,7 +783,9 @@ public class LauncherImpl {
             }
 
             if (error) {
-                if (pConstructorError != null) {
+                Throwable t = null;
+                //mymod
+              /*  if (pConstructorError != null) {
                     throw new RuntimeException("Unable to construct Preloader instance: "
                             + appClass, pConstructorError);
                 } else if (pInitError != null) {
@@ -901,39 +797,288 @@ public class LauncherImpl {
                 } else if (pStopError != null) {
                     throw new RuntimeException("Exception in Preloader stop method",
                             pStopError);
-                } else if (constructorError != null) {
+                } else */if (constructorError != null) {
                     String msg = "Unable to construct Application instance: " + appClass;
-                    if (!notifyError(msg, constructorError)) {
-                        throw new RuntimeException(msg, constructorError);
-                    }
+                    t = new RuntimeException(msg, constructorError);
+//                    if (!notifyError(msg, constructorError)) {
+//                        throw new RuntimeException(msg, constructorError);
+//                    }
                 } else if (initError != null) {
                     String msg = "Exception in Application init method";
-                    if (!notifyError(msg, initError)) {
-                        throw new RuntimeException(msg, initError);
-                    }
+                    t = new RuntimeException(msg, initError);
+//                    if (!notifyError(msg, initError)) {
+//                        throw new RuntimeException(msg, initError);
+//                    }
                 } else if(startError != null) {
                     String msg = "Exception in Application start method";
-                    if (!notifyError(msg, startError)) {
-                        throw new RuntimeException(msg, startError);
-                    }
+                    t = new RuntimeException(msg, startError);
+//                    if (!notifyError(msg, startError)) {
+//                        throw new RuntimeException(msg, startError);
+//                    }
                 } else if (stopError != null) {
                     String msg = "Exception in Application stop method";
-                    if (!notifyError(msg, stopError)) {
-                        throw new RuntimeException(msg, stopError);
-                    }
+                    t = new RuntimeException(msg, stopError);
+//                    if (!notifyError(msg, stopError)) {
+//                        throw new RuntimeException(msg, stopError);
+//                    }
+                }
+
+                if(t != null)
+                    t.printStackTrace();
+            }
+
+            if(!MyProps.loop)
+                finalq.run();
+        };
+
+        //mymod
+        listener = new PlatformImpl.FinishListener() {
+//        final PlatformImpl.FinishListener listener = new PlatformImpl.FinishListener() {
+            @Override public void idle(boolean implicitExit) {
+                if (!implicitExit) {
+                    return;
+                }
+
+//                System.err.println("JavaFX Launcher: system is idle");
+                if (startCalled.get()) {
+                    shutdownLatch.countDown();
+                }
+                //mymod
+//                else if (pStartCalled.get()) {
+//                    pShutdownLatch.countDown();
+//                }
+
+                if(!MyProps.loop) {
+                    q.run();
+                    finalq.run();
                 }
             }
-        } finally {
-            PlatformImpl.removeListener(listener);
-            // Workaround until RT-13281 is implemented
-            // Don't call exit if we detect an error in javaws mode
-//            PlatformImpl.tkExit();
-            final boolean isJavaws = System.getSecurityManager() != null;
-            if (error && isJavaws) {
-                System.err.println("Workaround until RT-13281 is implemented: keep toolkit alive");
-            } else {
-                PlatformImpl.tkExit();
+
+            @Override public void exitCalled() {
+//                System.err.println("JavaFX Launcher: received exit notification");
+                exitCalled.set(true);
+                shutdownLatch.countDown();
+
+                if(!MyProps.loop) {
+                    q.run();
+                    finalq.run();
+                }
             }
+        };
+        PlatformImpl.addListener(listener);
+
+        try {
+            //mymod
+//            final AtomicReference<Preloader> pldr = new AtomicReference<>();
+//            if (preloaderClass != null) {
+//                // Construct an instance of the preloader on the FX thread, then
+//                // call its init method on this (launcher) thread. Then call
+//                // the start method on the FX thread.
+//                PlatformImpl.runAndWait(() -> {
+//                    try {
+//                        Constructor<? extends Preloader> c = preloaderClass.getConstructor();
+//                        pldr.set(c.newInstance());
+//                        // Set startup parameters
+//                        ParametersImpl.registerParameters(pldr.get(), new ParametersImpl(args));
+//                    } catch (Throwable t) {
+//                        System.err.println("Exception in Preloader constructor");
+//                        pConstructorError = t;
+//                        error = true;
+//                    }
+//                });
+//            }
+//            currentPreloader = pldr.get();
+//
+//            // Call init method unless exit called or error detected
+//            if (currentPreloader != null && !error && !exitCalled.get()) {
+//                try {
+//                    // Call the application init method (on the Launcher thread)
+//                    currentPreloader.init();
+//                } catch (Throwable t) {
+//                    System.err.println("Exception in Preloader init method");
+//                    pInitError = t;
+//                    error = true;
+//                }
+//            }
+
+            // Call start method unless exit called or error detected
+            //mymod
+//            if (currentPreloader != null && !error && !exitCalled.get()) {
+//                // Call the application start method on FX thread
+//                PlatformImpl.runAndWait(() -> {
+//                    try {
+//                        pStartCalled.set(true);
+//
+//                        // Create primary stage and call preloader start method
+//                        final Stage primaryStage = new Stage();
+//                        primaryStage.impl_setPrimary(true);
+//                        currentPreloader.start(primaryStage);
+//                    } catch (Throwable t) {
+//                        System.err.println("Exception in Preloader start method");
+//                        pStartError = t;
+//                        error = true;
+//                    }
+//                });
+//
+//                // Notify preloader of progress
+//                if (!error && !exitCalled.get()) {
+//                    notifyProgress(currentPreloader, 0.0);
+//                }
+//            }
+
+            // Construct an instance of the application on the FX thread, then
+            // call its init method on this (launcher) thread. Then call
+            // the start method on the FX thread.
+            final AtomicReference<Application> app = new AtomicReference<>();
+            if (!error && !exitCalled.get()) {
+                //mymod
+//                if (currentPreloader != null) {
+//                    if (simulateSlowProgress) {
+//                        for (int i = 0; i < 100; i++) {
+//                            notifyProgress(currentPreloader, (double)i / 100.0);
+//                            Thread.sleep(10);
+//                        }
+//                    }
+//                    notifyProgress(currentPreloader, 1.0);
+//                    notifyStateChange(currentPreloader,
+//                            StateChangeNotification.Type.BEFORE_LOAD, null);
+//                }
+
+                PlatformImpl.runAndWait(() -> {
+                    try {
+                        Constructor<? extends Application> c = appClass.getConstructor();
+                        app.set(c.newInstance());
+                        // Set startup parameters
+                        ParametersImpl.registerParameters(app.get(), new ParametersImpl(args));
+                        PlatformImpl.setApplicationName(appClass);
+                    } catch (Throwable t) {
+                        System.err.println("Exception in Application constructor");
+                        constructorError = t;
+                        error = true;
+                        throw new RuntimeException(t);
+                    }
+                });
+            }
+            //mymod
+//            final Application theApp = app.get();
+            theApp = app.get();
+
+            // Call init method unless exit called or error detected
+            if (!error && !exitCalled.get()) {
+                //mymod
+//                if (currentPreloader != null) {
+//                    notifyStateChange(currentPreloader,
+//                            StateChangeNotification.Type.BEFORE_INIT, theApp);
+//                }
+
+                try {
+                    // Call the application init method (on the Launcher thread)
+                    theApp.init();
+                } catch (Throwable t) {
+                    System.err.println("Exception in Application init method");
+                    initError = t;
+                    error = true;
+                    throw new RuntimeException(t);
+                }
+            }
+
+            // Call start method unless exit called or error detected
+            if (!error && !exitCalled.get()) {
+                //mymod
+//                if (currentPreloader != null) {
+//                    notifyStateChange(currentPreloader,
+//                            StateChangeNotification.Type.BEFORE_START, theApp);
+//                }
+                // Call the application start method on FX thread
+                PlatformImpl.runAndWait(() -> {
+                    try {
+                        startCalled.set(true);
+
+                        // Create primary stage and call application start method
+                        final Stage primaryStage = new Stage();
+                        primaryStage.impl_setPrimary(true);
+                        theApp.start(primaryStage);
+                    } catch (Throwable t) {
+                        System.err.println("Exception in Application start method");
+                        startError = t;
+                        error = true;
+                        throw new RuntimeException(t);
+                    }
+                });
+            }
+
+            //mymod: moved to 'q' runnable.
+            if(MyProps.loop)
+                q.run();
+//            if (!error) {
+//                shutdownLatch.await();
+////                System.err.println("JavaFX Launcher: time to call stop");
+//            }
+//
+//            // Call stop method if start was called
+//            if (startCalled.get()) {
+//                // Call Application stop method on FX thread
+//                PlatformImpl.runAndWait(() -> {
+//                    try {
+//                        theApp.stop();
+//                    } catch (Throwable t) {
+//                        System.err.println("Exception in Application stop method");
+//                        stopError = t;
+//                        error = true;
+//                    }
+//                });
+//            }
+//
+//            if (error) {
+//                //mymod
+//              /*  if (pConstructorError != null) {
+//                    throw new RuntimeException("Unable to construct Preloader instance: "
+//                            + appClass, pConstructorError);
+//                } else if (pInitError != null) {
+//                    throw new RuntimeException("Exception in Preloader init method",
+//                            pInitError);
+//                } else if(pStartError != null) {
+//                    throw new RuntimeException("Exception in Preloader start method",
+//                            pStartError);
+//                } else if (pStopError != null) {
+//                    throw new RuntimeException("Exception in Preloader stop method",
+//                            pStopError);
+//                } else */if (constructorError != null) {
+//                    String msg = "Unable to construct Application instance: " + appClass;
+//                    if (!notifyError(msg, constructorError)) {
+//                        throw new RuntimeException(msg, constructorError);
+//                    }
+//                } else if (initError != null) {
+//                    String msg = "Exception in Application init method";
+//                    if (!notifyError(msg, initError)) {
+//                        throw new RuntimeException(msg, initError);
+//                    }
+//                } else if(startError != null) {
+//                    String msg = "Exception in Application start method";
+//                    if (!notifyError(msg, startError)) {
+//                        throw new RuntimeException(msg, startError);
+//                    }
+//                } else if (stopError != null) {
+//                    String msg = "Exception in Application stop method";
+//                    if (!notifyError(msg, stopError)) {
+//                        throw new RuntimeException(msg, stopError);
+//                    }
+//                }
+//            }
+        } finally {
+            //mymod: moved to 'finalq'.
+            if(MyProps.loop)
+                finalq.run();
+//            PlatformImpl.removeListener(listener);
+//            // Workaround until RT-13281 is implemented
+//            // Don't call exit if we detect an error in javaws mode
+////            PlatformImpl.tkExit();
+//            final boolean isJavaws = System.getSecurityManager() != null;
+//            if (error && isJavaws) {
+//                System.err.println("Workaround until RT-13281 is implemented: keep toolkit alive");
+//            } else {
+//                PlatformImpl.tkExit();
+//            }
         }
     }
 
@@ -951,20 +1096,22 @@ public class LauncherImpl {
     }
 
     private static boolean notifyError(final String msg, final Throwable constructorError) {
-        final AtomicBoolean result = new AtomicBoolean(false);
-        PlatformImpl.runAndWait(() -> {
-            if (currentPreloader != null) {
-                try {
-                    ErrorNotification evt = new ErrorNotification(null, msg, constructorError);
-                    boolean rval = currentPreloader.handleErrorNotification(evt);
-                    result.set(rval);
-                } catch (Throwable t) {
-                    t.printStackTrace();
-                }
-            }
-        });
-
-        return result.get();
+        //mymod
+        return false;
+//        final AtomicBoolean result = new AtomicBoolean(false);
+//        PlatformImpl.runAndWait(() -> {
+//            if (currentPreloader != null) {
+//                try {
+//                    ErrorNotification evt = new ErrorNotification(null, msg, constructorError);
+//                    boolean rval = currentPreloader.handleErrorNotification(evt);
+//                    result.set(rval);
+//                } catch (Throwable t) {
+//                    t.printStackTrace();
+//                }
+//            }
+//        });
+//
+//        return result.get();
     }
 
     private static void notifyCurrentPreloader(final PreloaderNotification pe) {

@@ -32,6 +32,11 @@ import java.nio.ByteBuffer;
 import java.security.AccessController;
 import java.security.PrivilegedAction;
 
+import java.nio.Buffer;
+import java.nio.ByteBuffer;
+import java.security.AccessController;
+import java.security.PrivilegedAction;
+
 /** Native screen implementation for the X11 platform
  *
  */
@@ -49,19 +54,27 @@ class X11Screen implements NativeScreen {
      * window attribute.
      * @param showCursor
      */
-    X11Screen(boolean showCursor) {
+    X11Screen(boolean showCursor, /*mymod*/long nativeDisplay) {
         // Since we will be accessing X from multiple threads, we need to call
         // XInitThreads before we do anything else.  Then, lock the X display
         // until we are done doing our setup
-        xLib.XInitThreads();
-        display = xLib.XOpenDisplay(null);
-        xLib.XLockDisplay(display);
+        /*mymod*/if(!xLib.XInitThreads())
+            //mymod
+            throw new RuntimeException("Failed to XInitThreads().");
+
+        if(nativeDisplay != 0l)
+            display = nativeDisplay;/*mymod*///xLib.XOpenDisplay(null);
+        else
+            display = xLib.XOpenDisplay(null);
+
+        /*mymod*/xLib.XLockDisplay(display);
         if (display == 0l) {
             throw new NullPointerException("Cannot open X11 display");
         }
         long screen = xLib.DefaultScreenOfDisplay(display);
         X.XSetWindowAttributes attrs = new X.XSetWindowAttributes();
         attrs.setEventMask(attrs.p,
+//                           /*mymod*/X.ExposureMask |
                            X.ButtonPressMask | X.ButtonReleaseMask
                                    | X.PointerMotionMask);
         long cwMask = X.CWEventMask;
@@ -73,7 +86,7 @@ class X11Screen implements NativeScreen {
         int y = 0;
         int w = xLib.WidthOfScreen(screen);
         int h = xLib.HeightOfScreen(screen);
-        boolean fullScreen = true;
+        boolean fullScreen = /*mymod*/false/*true*/;
         String geometry =
                 AccessController.doPrivileged((PrivilegedAction<String>) () ->
                         System.getProperty("x11.geometry"));
@@ -116,7 +129,7 @@ class X11Screen implements NativeScreen {
         }
         long window = xLib.XCreateWindow(
                 display,
-                xLib.RootWindowOfScreen(screen),
+                xLib.RootWindowOfScreen(display, screen),
                 x, y, w, h,
                 0, // border width
                 X.CopyFromParent, // depth
@@ -124,7 +137,7 @@ class X11Screen implements NativeScreen {
                 X.CopyFromParent, // visual
                 cwMask,
                 attrs.p);
-        xLib.XMapWindow(display, window);
+        /*mymod*/xLib.XMapWindow(display, window);
         if (fullScreen) {
             X.XClientMessageEvent event = new X.XClientMessageEvent(
                     new X.XEvent());
@@ -142,7 +155,7 @@ class X11Screen implements NativeScreen {
                             false)
             );
             X.XClientMessageEvent.setDataLong(event.p, 2, 0);
-            xLib.XSendEvent(display, xLib.RootWindowOfScreen(screen),
+            xLib.XSendEvent(display, xLib.RootWindowOfScreen(display, screen),
                          false,
                          X.SubstructureRedirectMask | X.SubstructureNotifyMask,
                          event.p);
@@ -156,7 +169,7 @@ class X11Screen implements NativeScreen {
         int[] depthA = new int[1];
         xLib.XGetGeometry(display, window, null, null, null, widthA,
                                heightA, null, depthA);
-        xLib.XUnlockDisplay(display);
+        /*mymod*/xLib.XUnlockDisplay(display);
         width = widthA[0];
         height = heightA[0];
         depth = depthA[0];

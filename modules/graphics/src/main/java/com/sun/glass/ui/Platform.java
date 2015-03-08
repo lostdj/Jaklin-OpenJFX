@@ -34,8 +34,10 @@ final class Platform {
     public static final String WINDOWS = "Win";
     public static final String GTK = "Gtk";
     public static final String IOS = "Ios";
+    //mymod
+    public static final String SDL = "SDL";
     public static final String UNKNOWN = "unknown";
- 
+
     static private String type = null;
 
     static public synchronized String determinePlatform() {
@@ -56,6 +58,9 @@ final class Platform {
                    type = GTK;
                 else if (userPlatform.equals("ios"))
                    type = IOS;
+                //mymod
+                else if (userPlatform.equals("sdl"))
+                    type = SDL;
                 else
                    type = userPlatform;
                 return type;

@@ -53,7 +53,9 @@
                 <PasswordField id="passwordField1" fx:id="password" layoutY="157.0" prefWidth="415.0" AnchorPane.leftAnchor="10.0" AnchorPane.rightAnchor="0.0" />
                 <ImageView id="app-login-logo" layoutY="-12.0">
                   <image>
-                    <Image url="@/ensemble/samples/shared-resources/fxmldemoImages/LoginLogo.png" preserveRatio="true" smooth="true" />
+                    <!--mymod-->
+                    <Image url="ensemble/samples/shared-resources/fxmldemoImages/LoginLogo.png" preserveRatio="true" smooth="true" />
+                    <!--<Image url="@/ensemble/samples/shared-resources/fxmldemoImages/LoginLogo.png" preserveRatio="true" smooth="true" />-->
                   </image>
                 </ImageView>
               </children>

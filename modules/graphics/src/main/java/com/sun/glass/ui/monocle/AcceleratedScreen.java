@@ -38,6 +38,7 @@ public class AcceleratedScreen {
     private long eglDisplay;
     protected static final LinuxSystem ls = LinuxSystem.getLinuxSystem();
     private EGL egl;
+    private static X xLib = X.getX();
 
     /** Returns a platform-specific native display handle suitable for use with
      * eglGetDisplay.
@@ -62,6 +63,10 @@ public class AcceleratedScreen {
      * @throws UnsatisfiedLinkError
      */
     AcceleratedScreen(int[] attributes) throws GLException, UnsatisfiedLinkError {
+        /*mymod*/if(!xLib.XInitThreads())
+            //mymod
+            throw new RuntimeException("Failed to XInitThreads().");
+
         egl = EGL.getEGL();
         initPlatformLibraries();
 
@@ -76,47 +81,70 @@ public class AcceleratedScreen {
             throw new GLException(0, "Could not get native window");
         }
 
+        /*mymod*/xLib.XLockDisplay(nativeDisplay);
+
         eglDisplay =
                 egl.eglGetDisplay(nativeDisplay);
         if (eglDisplay == EGL.EGL_NO_DISPLAY) {
+            //mymod
+            System.err.println("glerr: " + Integer.toHexString(egl.eglGetError()));
             throw new GLException(egl.eglGetError(),
                                  "Could not get EGL display");
         }
+        System.err.println("glerr: " + Integer.toHexString(egl.eglGetError()));
 
         if (!egl.eglInitialize(eglDisplay, major, minor)) {
+            //mymod
+            System.err.println("glerr: " + Integer.toHexString(egl.eglGetError()));
             throw new GLException(egl.eglGetError(),
                                   "Error initializing EGL");
         }
+        System.err.println("glerr: " + Integer.toHexString(egl.eglGetError()));
 
-        if (!egl.eglBindAPI(EGL.EGL_OPENGL_ES_API)) {
+        //mymod: reordered.
+        long eglConfigs[] = {0};
+        int configCount[] = {0};
+        if (!egl.eglChooseConfig(eglDisplay, attributes, eglConfigs,
+                1, configCount)) {
+            //mymod
+            System.err.println("glerr: " + Integer.toHexString(egl.eglGetError()));
+            throw new GLException(egl.eglGetError(),
+                    "Error choosing EGL config");
+        }
+        System.err.println("glerr: " + Integer.toHexString(egl.eglGetError()));
+
+        //mymod
+        if (!egl.eglBindAPI(Boolean.getBoolean("myfx.tux.desktop") ? EGL.EGL_OPENGL_API : EGL.EGL_OPENGL_ES_API)) {
+            //mymod
+            System.err.println("glerr: " + Integer.toHexString(egl.eglGetError()));
             throw new GLException(egl.eglGetError(),
                                   "Error binding OPENGL API");
         }
-
-        long eglConfigs[] = {0};
-        int configCount[] = {0};
-
-        if (!egl.eglChooseConfig(eglDisplay, attributes, eglConfigs,
-                                         1, configCount)) {
-            throw new GLException(egl.eglGetError(),
-                                  "Error choosing EGL config");
-        }
+        System.err.println("glerr: " + Integer.toHexString(egl.eglGetError()));
 
         eglSurface =
                 egl.eglCreateWindowSurface(eglDisplay, eglConfigs[0],
                                                    nativeWindow, null);
         if (eglSurface == EGL.EGL_NO_SURFACE) {
+            //mymod
+            System.err.println("glerr: " + Integer.toHexString(egl.eglGetError()));
             throw new GLException(egl.eglGetError(),
                                   "Could not get EGL surface");
         }
+        System.err.println("glerr: " + Integer.toHexString(egl.eglGetError()));
 
         int emptyAttrArray [] = {};
         eglContext = egl.eglCreateContext(eglDisplay, eglConfigs[0],
                 0, emptyAttrArray);
         if (eglContext == EGL.EGL_NO_CONTEXT) {
+            //mymod
+            System.err.println("glerr: " + Integer.toHexString(egl.eglGetError()));
             throw new GLException(egl.eglGetError(),
                                   "Could not get EGL context");
         }
+        System.err.println("glerr: " + Integer.toHexString(egl.eglGetError()));
+
+        /*mymod*/xLib.XUnlockDisplay(nativeDisplay);
     }
 
     /** Make the EGL drawing surface current or not
@@ -124,11 +152,28 @@ public class AcceleratedScreen {
      * @param flag
      */
     public void enableRendering(boolean flag) {
-        if (flag) {
-            egl.eglMakeCurrent(eglDisplay, eglSurface, eglSurface,
-                                       eglContext);
-        } else {
-            egl.eglMakeCurrent(eglDisplay, 0, 0, eglContext);
+        //mymod
+        try {
+            if (flag) {
+                //mymod
+                if (!egl.eglMakeCurrent(eglDisplay, eglSurface, eglSurface,
+                        eglContext)) {
+                    System.err.println("glerr: " + Integer.toHexString(egl.eglGetError()));
+                    throw new GLException(egl.eglGetError(),
+                            "Could not enable rendering");
+                }
+            } else {
+                //mymod
+                if (!egl.eglMakeCurrent(eglDisplay, 0, 0, eglContext)) {
+                    System.err.println("glerr: " + Integer.toHexString(egl.eglGetError()));
+                    throw new GLException(egl.eglGetError(),
+                            "Could not disable rendering");
+                }
+            }
+        }
+        catch(GLException e)
+        {
+            System.err.println(e);
         }
     }
 

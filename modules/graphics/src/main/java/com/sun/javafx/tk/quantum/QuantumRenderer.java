@@ -28,13 +28,7 @@ package com.sun.javafx.tk.quantum;
 import java.security.AccessController;
 import java.security.PrivilegedAction;
 import java.util.Map;
-import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.Future;
-import java.util.concurrent.LinkedBlockingQueue;
-import java.util.concurrent.RunnableFuture;
-import java.util.concurrent.ThreadFactory;
-import java.util.concurrent.ThreadPoolExecutor;
-import java.util.concurrent.TimeUnit;
+import java.util.concurrent.*;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicReference;
 
@@ -54,23 +48,27 @@ import java.util.HashMap;
 /*
  * Quantum Renderer
  */
-final class QuantumRenderer extends ThreadPoolExecutor  {
+public final class QuantumRenderer extends ThreadPoolExecutor  {
     private static boolean usePurgatory = // TODO - deprecate
         AccessController.doPrivileged((PrivilegedAction<Boolean>) () -> Boolean.getBoolean("decora.purgatory"));
-        
-        
+
+
     private static final AtomicReference<QuantumRenderer> instanceReference =
                                     new AtomicReference<>(null);
 
     private Thread          _renderer;
     private Throwable       _initThrowable = null;
     private CountDownLatch  initLatch = new CountDownLatch(1);
-    
-    private QuantumRenderer() { 
+
+    private QuantumRenderer() {
         super(1, 1, 0L, TimeUnit.MILLISECONDS, new LinkedBlockingQueue<Runnable>());
-        setThreadFactory(new QuantumThreadFactory());
+//        //mymod
+        if(!QuantumToolkit.singleThreaded)
+            setThreadFactory(new QuantumThreadFactory());
+//        else
+//            myInit(this);
     }
-    
+
     protected Throwable initThrowable() {
         return _initThrowable;
     }
@@ -78,47 +76,56 @@ final class QuantumRenderer extends ThreadPoolExecutor  {
     private void setInitThrowable(Throwable th) {
         _initThrowable = th;
     }
-        
+
+    //mymod
+    public static void myInit(QuantumRenderer qr) {
+        try {
+            if (GraphicsPipeline.createPipeline() == null) {
+                String MSG = "Error initializing QuantumRenderer: no suitable pipeline found";
+                System.err.println(MSG);
+                throw new RuntimeException(MSG);
+            } else {
+                Map device = GraphicsPipeline.getPipeline().getDeviceDetails();
+                if (device == null) {
+                    device = new HashMap();
+                }
+                device.put(com.sun.glass.ui.View.Capability.kHiDPIAwareKey,
+                        PrismSettings.allowHiDPIScaling);
+                Map map =  Application.getDeviceDetails();
+                if (map != null) {
+                    device.putAll(map);
+                }
+                Application.setDeviceDetails(device);
+            }
+        } catch (Throwable th) {
+            if(qr != null)
+                qr.setInitThrowable(th);
+        } finally {
+            //mymod
+            if(qr != null && !QuantumToolkit.singleThreaded)
+                qr.initLatch.countDown();
+        }
+    }
+
     private class PipelineRunnable implements Runnable {
         private Runnable    work;
 
         public PipelineRunnable(Runnable runner) {
             work = runner;
         }
-        
+
         public void init() {
-            try { 
-                if (GraphicsPipeline.createPipeline() == null) {
-                    String MSG = "Error initializing QuantumRenderer: no suitable pipeline found";
-                    System.err.println(MSG);
-                    throw new RuntimeException(MSG);
-                } else {
-                    Map device = GraphicsPipeline.getPipeline().getDeviceDetails();
-                    if (device == null) {
-                        device = new HashMap();
-                    }
-                    device.put(com.sun.glass.ui.View.Capability.kHiDPIAwareKey,
-                               PrismSettings.allowHiDPIScaling);
-                    Map map =  Application.getDeviceDetails();
-                    if (map != null) {
-                        device.putAll(map);
-                    }
-                    Application.setDeviceDetails(device);
-                }
-            } catch (Throwable th) {
-                QuantumRenderer.this.setInitThrowable(th); 
-            } finally {
-                initLatch.countDown();
-            }
+            //mymod
+            myInit(QuantumRenderer.this);
         }
-        
+
         public void cleanup() {
             GraphicsPipeline pipeline = GraphicsPipeline.getPipeline();
             if (pipeline != null) {
                 pipeline.dispose();
             }
         }
-        
+
         @Override public void run() {
             try {
                 init();
@@ -128,11 +135,11 @@ final class QuantumRenderer extends ThreadPoolExecutor  {
             }
         }
     }
-    
+
     private class QuantumThreadFactory implements ThreadFactory {
         final AtomicInteger threadNumber = new AtomicInteger(0);
 
-        @Override public Thread newThread(Runnable r) {
+        @Override public Thread newThread(@SuppressWarnings("NullableProblems") Runnable r) {
             final PipelineRunnable pipeline = new PipelineRunnable(r);
             _renderer =
                 AccessController.doPrivileged((PrivilegedAction<Thread>) () -> {
@@ -145,23 +152,23 @@ final class QuantumRenderer extends ThreadPoolExecutor  {
                     });
                     return th;
                 });
-            
+
             assert threadNumber.get() == 1;
-            
+
             return _renderer;
-        }    
+        }
     }
 
     protected void createResourceFactory() {
         final CountDownLatch createLatch = new CountDownLatch(1);
-        
+
         final CompletionListener createDone = job -> createLatch.countDown();
 
         final Runnable factoryCreator = () -> {
             ResourceFactory factory = GraphicsPipeline.getDefaultResourceFactory();
             assert factory != null;
         };
-        
+
         final RenderJob job = new RenderJob(factoryCreator, createDone);
 
         submit(job);
@@ -172,25 +179,25 @@ final class QuantumRenderer extends ThreadPoolExecutor  {
             th.printStackTrace(System.err);
         }
     }
-    
+
     /*
-     * Dispose the native GraphicsResource of the Presentable on the 
-     * render thread.  This method can be called from the FX thread 
+     * Dispose the native GraphicsResource of the Presentable on the
+     * render thread.  This method can be called from the FX thread
      */
     protected void disposePresentable(final Presentable presentable) {
         assert !Thread.currentThread().equals(_renderer);
-        
+
         if (presentable instanceof GraphicsResource) {
             final GraphicsResource resource = (GraphicsResource)presentable;
-            
+
             final Runnable presentableDisposer = () -> resource.dispose();
-            
+
             final RenderJob job = new RenderJob(presentableDisposer, null);
-            
+
             submit(job);
         }
     }
-    
+
     protected void stopRenderer() {
         AccessController.doPrivileged((PrivilegedAction<Void>) () -> {
             shutdown();
@@ -199,32 +206,70 @@ final class QuantumRenderer extends ThreadPoolExecutor  {
         if (PrismSettings.verbose) {
             System.out.println("QuantumRenderer: shutdown");
         }
-         
+
         assert isShutdown();
-        
+
         /*
-         * ThreadPoolExecutor cannot be restarted once it has been 
-         * shutdown.  Create a new QuantumRenderer for the next 
+         * ThreadPoolExecutor cannot be restarted once it has been
+         * shutdown.  Create a new QuantumRenderer for the next
          * toolkit invocation.
          */
         instanceReference.set(null);
     }
-    
+
     @Override protected <T> RunnableFuture<T> newTaskFor(Runnable runnable, T value) {
         return (RenderJob)runnable;
     }
-    
+
     protected Future submitRenderJob(RenderJob r) {
         return (submit(r));
     }
-   
+
+    //mymod
+    @SuppressWarnings("NullableProblems")
+    @Override
+    public Future<?> submit(Runnable task) {
+        if (QuantumToolkit.singleThreaded) {
+            task.run();
+            return null;
+        }
+
+        return super.submit(task);
+    }
+
+    @SuppressWarnings("NullableProblems")
+    @Override
+    public <T> Future<T> submit(Runnable task, T result) {
+        if (QuantumToolkit.singleThreaded) {
+            task.run();
+            return null;
+        }
+
+        return super.submit(task, result);
+    }
+
+    @SuppressWarnings("NullableProblems")
+    @Override
+    public <T> Future<T> submit(Callable<T> task) {
+        if (QuantumToolkit.singleThreaded) {
+            try {
+                task.call();
+            }
+            catch (Exception ignored) {}
+            return null;
+        }
+
+        return super.submit(task);
+    }
+    ///mymod
+
     /* java.util.concurrent.ThreadPoolExecutor */
 
     @Override public void afterExecute(Runnable r, Throwable t) {
         super.afterExecute(r, t);
-        
-        /* 
-         * clean up what we can after every render job 
+
+        /*
+         * clean up what we can after every render job
          *
          * we should really be keeping RenderJob/Scene pools
          */
@@ -234,7 +279,7 @@ final class QuantumRenderer extends ThreadPoolExecutor  {
             renderer.releasePurgatory();
         }
     }
-    
+
     void checkRendererIdle() {
         if (PrismSettings.threadCheck) {
             PaintCollector collector = PaintCollector.getInstance();
@@ -260,9 +305,11 @@ final class QuantumRenderer extends ThreadPoolExecutor  {
                 QuantumRenderer newTk = null;
                 try {
                     newTk = new QuantumRenderer();
-                    newTk.prestartCoreThread();
-
-                    newTk.initLatch.await();
+                    //mymod
+                    if(!QuantumToolkit.singleThreaded) {
+                        newTk.prestartCoreThread();
+                        newTk.initLatch.await();
+                    }
                 } catch (Throwable t) {
                     if (newTk != null) {
                         newTk.setInitThrowable(t);
