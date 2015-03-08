@@ -160,7 +160,7 @@ public class mymain
 
             ran = true;
 
-            javafx.scene.text.Font f = javafx.scene.text.Font.loadFont(mymain.class.getResourceAsStream("/fonts/OpenSans-Regular.ttf"), 0);
+            // javafx.scene.text.Font f = javafx.scene.text.Font.loadFont(mymain.class.getResourceAsStream("/fonts/OpenSans-Regular.ttf"), 0);
 
             System.out.println(System.currentTimeMillis() + " fxapp.start().");
 
@@ -200,7 +200,7 @@ public class mymain
 //                hbox1.getChildren().add(hbox2);
 //                hbox2.setAlignment(Pos.TOP_RIGHT);
 //                hbox1.getChildren().add(btn);
-                btn.setFont(f);
+                // btn.setFont(f);
                 btn.setText("Say 'Hello World' :D");
                 btn.setOnAction(event -> System.out.println("Hello World!"));
                 VBox ctrl = new VBox();
